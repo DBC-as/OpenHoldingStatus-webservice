@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ns1="http://oss.dbc.dk/ns/holdings">
+<SOAP-ENV:Body>
+<ns1:holdingsRequest>
+  <ns1:lookupRecord>
+    <ns1:responderId>DK-715500</ns1:responderId>
+    <ns1:bibliographicRecordId>27942628</ns1:bibliographicRecordId>
+    <ns1:bibliographicRecordAgencyId>DK-790900</ns1:bibliographicRecordAgencyId>
+  </ns1:lookupRecord>
+  <ns1:lookupRecord>
+    <ns1:responderId>DK-710100</ns1:responderId>
+    <ns1:bibliographicRecordId>27942628</ns1:bibliographicRecordId>
+    <ns1:bibliographicRecordAgencyId>DK-790900</ns1:bibliographicRecordAgencyId>
+  </ns1:lookupRecord>
+</ns1:holdingsRequest>
+</SOAP-ENV:Body>
+</SOAP-ENV:Envelope>
