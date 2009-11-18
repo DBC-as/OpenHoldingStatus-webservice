@@ -1,0 +1,73 @@
+; Inifile for openholdings
+
+[setup]
+version = 0.1
+
+; wsdl for service
+wsdl = openholdings.wsdl
+
+; validate
+;validate[request] = openholdings.xsd
+;validate[response] = openholdings.xsd
+
+; soapActions and their corresponding request structure
+; Can be found in the wsdl but is stated here for convenience
+soapAction[holdingsService] = holdingsRequest
+
+; prefixes and namespaces
+xmlns[NONE] = http://oss.dbc.dk/ns/openholdings
+
+; path to xml-examples
+xmldir = ./xml
+
+; logfile for verbose output
+logfile = /tmp/openholdings.log
+
+; set verboselevel
+;   WARNING - simple warnings
+;   ERROR   - errors in response
+;   FATAL   - major errors
+;   STAT    - Statístical logging
+;   TIMER   - timer logging
+;   TRACE   - program trace
+;   DEBUG   - debugging info
+;   Z3959   - calls to z3950 services
+;   OCI     - oracle
+verbose = WARNING+ERROR+FATAL+STAT+TIMER+TRACE+DEBUG+Z3950+OCI
+
+vip_credentials = user/password@my.oracler.server
+
+[rest]
+soap_header = <?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?><SOAP-ENV:Envelope xmlns:SOAP-ENV=&quot;http://schemas.xmlsoap.org/soap/envelope/&quot; xmlns=&quot;http://oss.dbc.dk/ns/opensearch&quot;><SOAP-ENV:Body>
+
+soap_footer = </SOAP-ENV:Body></SOAP-ENV:Envelope>
+
+; REST parameters for SOAPactions
+;
+; use xml.path.to.par notation to solve name-conflicts
+; action[thisSoapAction][foo][] = some.number
+; action[thisSoapAction][bar][] = another.number
+; to build 
+; <thisSoapAction>
+;   <foo>
+;     <number>nn</number>
+;   </foo>
+;   <bar>
+;     <number>mm</number>
+;   </bar>
+; </thisSoapAction>
+; from url: action=thisSoapAction&some.number=nn&another.number=mm
+;
+; acction[ALL] defines parameter used in all defined soap-actions
+;
+action[ALL][] = callback
+action[ALL][] = outputType
+action[holdingsService][] = responderId
+action[holdingsService][] = bibliographicRecordId
+action[holdingsService][] = bibliographicRecordAgencyId
+
+
+[howru]
+test[] = holdingsService&responderId=DK-790900&bibliographicRecordId=12343&bibliographicRecordAgencyId=DK-710100
+preg_match[] = willLend
+error[] = ERROR checking for holdings

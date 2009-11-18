@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:hs="http://oss.dbc.dk/ns/openholdingstatus" xmlns:xs="http://www.w3.org/2001/XMLSchema" targetNamespace="http://oss.dbc.dk/ns/openholdingstatus" elementFormDefault="qualified">
+	<xs:annotation>
+		<xs:documentation xml:lang="en">Open Holding Status</xs:documentation>
+		<xs:documentation xml:lang="en">This XML Schema describes the data and structure of data of the Holdings Service for Open Resource Sharing (ORS).</xs:documentation>
+		<xs:documentation xml:lang="en">This file is part of OpenSearch.
+Copyright © 2009, Dansk Bibliotekscenter a/s,  Tempovej 7-11, DK-2750 Ballerup, Denmark. CVR: 15149043
+
+OpenSearch is free software: you can redistribute it and/or modify it under the terms of the GNU Affero General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+
+OpenSearch is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more details.
+
+You should have received a copy of the GNU Affero General Public License along with OpenSearch.  If not, see http://www.gnu.org/licenses/</xs:documentation>
+	</xs:annotation>
+	<xs:element name="holdingsRequest">
+		<xs:annotation>
+			<xs:documentation xml:lang="en">The service request.</xs:documentation>
+		</xs:annotation>
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="hs:lookupRecord" maxOccurs="unbounded"/>
+				<xs:element ref="hs:callback" minOccurs="0"/>
+				<xs:element ref="hs:outputType" minOccurs="0"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="holdingsResponse">
+		<xs:annotation>
+			<xs:documentation xml:lang="en">The service response.</xs:documentation>
+		</xs:annotation>
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="hs:responder" maxOccurs="unbounded"/>
+				<xs:element ref="hs:error" maxOccurs="unbounded"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="lookupRecord">
+		<xs:annotation>
+			<xs:documentation xml:lang="en">Id of the responder of a specific holdings request.</xs:documentation>
+		</xs:annotation>
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="hs:responderId" minOccurs="0"/>
+				<xs:element ref="hs:bibliographicRecordId"/>
+				<xs:element ref="hs:bibliographicRecordAgencyId"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="responder">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="hs:responderId"/>
+				<xs:element ref="hs:localHoldingsId"/>
+				<xs:element ref="hs:willLend"/>
+				<xs:element ref="hs:note"/>
+				<xs:element ref="hs:expectedDelivery" minOccurs="0"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="bibliographicRecordId" type="xs:string">
+		<xs:annotation>
+			<xs:documentation xml:lang="en">Id of the bibliographic record of the materiale for which holdings are looked up.</xs:documentation>
+		</xs:annotation>
+	</xs:element>
+	<xs:element name="bibliographicRecordAgencyId" type="xs:string">
+		<xs:annotation>
+			<xs:documentation xml:lang="en">Id of the agency owning the bibliographic record. If bibliographicRecordId is a FAUST number, use DK-190101</xs:documentation>
+		</xs:annotation>
+	</xs:element>
+	<xs:element name="callback" type="xs:string">
+		<xs:annotation>
+			<xs:documentation xml:lang="en">If outputType=json.</xs:documentation>
+		</xs:annotation>
+	</xs:element>
+	<xs:element name="error">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="hs:responderId"/>
+				<xs:element ref="hs:errorMessage"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="errorMessage" type="hs:errorType"/>
+	<xs:element name="expectedDelivery" type="xs:date">
+		<xs:annotation>
+			<xs:documentation>The date the responder expects to be able to deliver the material.</xs:documentation>
+		</xs:annotation>
+	</xs:element>
+	<xs:element name="note" type="xs:string">
+		<xs:annotation>
+			<xs:documentation xml:lang="en">Note from local library.</xs:documentation>
+		</xs:annotation>
+	</xs:element>
+	<xs:element name="localHoldingsId" type="xs:string">
+		<xs:annotation>
+			<xs:documentation xml:lang="en">The Id needed for direct ordering of the material in the local library system.</xs:documentation>
+		</xs:annotation>
+	</xs:element>
+	<xs:element name="outputType" type="hs:outputTypeType">
+		<xs:annotation>
+			<xs:documentation xml:lang="en">E.g. xml, json or php.</xs:documentation>
+		</xs:annotation>
+	</xs:element>
+	<xs:element name="responderId" type="xs:string">
+		<xs:annotation>
+			<xs:documentation xml:lang="en">Id of a specific agency that the holdings lookup has to be made towards.</xs:documentation>
+		</xs:annotation>
+	</xs:element>
+	<xs:element name="willLend" type="xs:boolean">
+		<xs:annotation>
+			<xs:documentation xml:lang="en">Tells whether the library will lend the material.</xs:documentation>
+		</xs:annotation>
+	</xs:element>
+	<xs:simpleType name="errorType">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="service_unavailable"/>
+			<xs:enumeration value="error_in_request"/>
+			<xs:enumeration value="service_not_supported_by_library"/>
+			<xs:enumeration value="cannot_parse_library_answer"/>
+			<xs:enumeration value="item_not_found"/>
+			<xs:enumeration value="error_searching_library"/>
+			<xs:enumeration value="no_holding_return_from_library"/>
+			<xs:enumeration value="no_holdings_specified_by_library"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="outputTypeType">
+		<xs:annotation>
+			<xs:documentation xml:lang="en">The types of output that can be returned by the service.</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="xml"/>
+			<xs:enumeration value="json"/>
+			<xs:enumeration value="php"/>
+		</xs:restriction>
+	</xs:simpleType>
+</xs:schema>
