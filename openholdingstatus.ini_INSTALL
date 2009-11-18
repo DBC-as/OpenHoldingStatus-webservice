@@ -4,24 +4,24 @@
 version = 0.1
 
 ; wsdl for service
-wsdl = openholdings.wsdl
+wsdl = openholdingstatus.wsdl
 
 ; validate
-;validate[request] = openholdings.xsd
-;validate[response] = openholdings.xsd
+;validate[request] = openholdingstatus.xsd
+;validate[response] = openholdingstatus.xsd
 
 ; soapActions and their corresponding request structure
 ; Can be found in the wsdl but is stated here for convenience
 soapAction[holdingsService] = holdingsRequest
 
 ; prefixes and namespaces
-xmlns[NONE] = http://oss.dbc.dk/ns/openholdings
+xmlns[NONE] = http://oss.dbc.dk/ns/openholdingstatus
 
 ; path to xml-examples
 xmldir = ./xml
 
 ; logfile for verbose output
-logfile = /tmp/openholdings.log
+logfile = /tmp/openholdingstatus.log
 
 ; set verboselevel
 ;   WARNING - simple warnings
@@ -38,7 +38,7 @@ verbose = WARNING+ERROR+FATAL+STAT+TIMER+TRACE+DEBUG+Z3950+OCI
 vip_credentials = user/password@my.oracler.server
 
 [rest]
-soap_header = <?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?><SOAP-ENV:Envelope xmlns:SOAP-ENV=&quot;http://schemas.xmlsoap.org/soap/envelope/&quot; xmlns=&quot;http://oss.dbc.dk/ns/opensearch&quot;><SOAP-ENV:Body>
+soap_header = <?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?><SOAP-ENV:Envelope xmlns:SOAP-ENV=&quot;http://schemas.xmlsoap.org/soap/envelope/&quot; xmlns=&quot;http://oss.dbc.dk/ns/openholdingstatus&quot;><SOAP-ENV:Body>
 
 soap_footer = </SOAP-ENV:Body></SOAP-ENV:Envelope>
 
