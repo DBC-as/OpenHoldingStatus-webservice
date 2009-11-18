@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<xs:schema xmlns:hs="http://oss.dbc.dk/ns/openholdingstatus" xmlns:xs="http://www.w3.org/2001/XMLSchema" targetNamespace="http://oss.dbc.dk/ns/openholdingstatus" elementFormDefault="qualified">
+<xs:schema xmlns:hs="http://oss.dbc.dk/ns/openholdings" xmlns:xs="http://www.w3.org/2001/XMLSchema" targetNamespace="http://oss.dbc.dk/ns/holdings" elementFormDefault="qualified">
 	<xs:annotation>
-		<xs:documentation xml:lang="en">Open Holding Status</xs:documentation>
+		<xs:documentation xml:lang="en">Holdings Service</xs:documentation>
 		<xs:documentation xml:lang="en">This XML Schema describes the data and structure of data of the Holdings Service for Open Resource Sharing (ORS).</xs:documentation>
 		<xs:documentation xml:lang="en">This file is part of OpenSearch.
 Copyright © 2009, Dansk Bibliotekscenter a/s,  Tempovej 7-11, DK-2750 Ballerup, Denmark. CVR: 15149043
@@ -29,10 +29,10 @@ You should have received a copy of the GNU Affero General Public License along w
 			<xs:documentation xml:lang="en">The service response.</xs:documentation>
 		</xs:annotation>
 		<xs:complexType>
-			<xs:sequence>
+			<xs:choice>
 				<xs:element ref="hs:responder" maxOccurs="unbounded"/>
 				<xs:element ref="hs:error" maxOccurs="unbounded"/>
-			</xs:sequence>
+			</xs:choice>
 		</xs:complexType>
 	</xs:element>
 	<xs:element name="lookupRecord">
@@ -74,14 +74,14 @@ You should have received a copy of the GNU Affero General Public License along w
 		</xs:annotation>
 	</xs:element>
 	<xs:element name="error">
-		<xs:complexType>
-			<xs:sequence>
-				<xs:element ref="hs:responderId"/>
-				<xs:element ref="hs:errorMessage"/>
-			</xs:sequence>
-		</xs:complexType>
-	</xs:element>
-	<xs:element name="errorMessage" type="hs:errorType"/>
+  <xs:complexType>
+  <xs:sequence>
+    <xs:element ref="hs:responderId"/>
+    <xs:element ref="hs:errorMessage"/>
+  </xs:sequence>
+  </xs:complexType>
+  </xs:element>
+  <xs:element name="errorMessage" type="hs:errorType"/>
 	<xs:element name="expectedDelivery" type="xs:date">
 		<xs:annotation>
 			<xs:documentation>The date the responder expects to be able to deliver the material.</xs:documentation>
@@ -89,7 +89,7 @@ You should have received a copy of the GNU Affero General Public License along w
 	</xs:element>
 	<xs:element name="note" type="xs:string">
 		<xs:annotation>
-			<xs:documentation xml:lang="en">Note from local library.</xs:documentation>
+			<xs:documentation xml:lang="en">Note from local library. check_local_library is returned when a serial or multivolume record is found</xs:documentation>
 		</xs:annotation>
 	</xs:element>
 	<xs:element name="localHoldingsId" type="xs:string">
@@ -104,7 +104,7 @@ You should have received a copy of the GNU Affero General Public License along w
 	</xs:element>
 	<xs:element name="responderId" type="xs:string">
 		<xs:annotation>
-			<xs:documentation xml:lang="en">Id of a specific agency that the holdings lookup has to be made towards.</xs:documentation>
+			<xs:documentation xml:lang="en">Id of a specific agency that the holdings lookup has to be made towards, use DK-190101.</xs:documentation>
 		</xs:annotation>
 	</xs:element>
 	<xs:element name="willLend" type="xs:boolean">
