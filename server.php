@@ -44,19 +44,27 @@ class openHoldings extends webServiceServer {
   function holdingsService($param) {
     if (is_array($param->lookupRecord))
       foreach ($param->lookupRecord as $holding) {
-				$fh = $this->find_holding($holding->lookupRecord->_value);
+				$fh = $this->find_holding($holding->_value);
         if (is_scalar($fh)) {
-		      $ret->error->_value = $fh;
-          break;
-        } else
+          $err->responderId->_value = $holding->_value->responderId->_value;
+          $err->errorMessage->_value = $fh;
+		      $ret->error[]->_value = $err;
+          unset($err);
+        } else {
+          $fh->responderId->_value = $holding->_value->responderId->_value;
           $ret->holdingsResponse->_value->responder[]->_value = $fh;
+			  }
 			}
     else {
 				$fh = $this->find_holding($param->lookupRecord->_value);
         if (is_scalar($fh)) {
-		      $ret->error->_value = $fh;
-        } else
+          $err->responderId->_value = $param->lookupRecord->_value->responderId->_value;
+          $err->errorMessage->_value = $fh;
+		      $ret->error->_value = $err;
+        } else {
+          $fh->responderId->_value = $param->lookupRecord->_value->responderId->_value;
           $ret->holdingsResponse->_value->responder[]->_value = $fh;
+			  }
 		}
 
     $this->verbose->log(TIMER, "OpenHoldings:: " . $this->watch->dump());
@@ -84,7 +92,7 @@ class openHoldings extends webServiceServer {
       $z3950->set_step(1);
       $z3950->set_rpn("@attr 4=103 @attr BIB1 1=12 " . $holding->bibliographicRecordId->_value);
       $this->watch->start("z3950");
-      $hits = $z3950->z3950_search();
+      $hits = $z3950->z3950_search(5);
       $this->watch->stop("z3950");
       if ($z3950->get_error()) {
         $this->verbose->log(ERROR, "OpenHoldings:: " . $zurl . " Z3950 error: " . $z3950->get_error_string());
@@ -203,7 +211,7 @@ class openHoldings extends webServiceServer {
  * MAIN
  */
 
-$ws=new openHoldings('openholdings.ini');
+$ws=new openHoldings('openholdingstatus.ini');
 $ws->handle_request();
 
 ?>
