@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<xs:schema xmlns:hs="http://oss.dbc.dk/ns/openholdings" xmlns:xs="http://www.w3.org/2001/XMLSchema" targetNamespace="http://oss.dbc.dk/ns/holdings" elementFormDefault="qualified">
+<xs:schema xmlns:hs="http://oss.dbc.dk/ns/openholdingstatus" xmlns:xs="http://www.w3.org/2001/XMLSchema" targetNamespace="http://oss.dbc.dk/ns/openholdingstatus" elementFormDefault="qualified">
 	<xs:annotation>
 		<xs:documentation xml:lang="en">Holdings Service</xs:documentation>
 		<xs:documentation xml:lang="en">This XML Schema describes the data and structure of data of the Holdings Service for Open Resource Sharing (ORS).</xs:documentation>
