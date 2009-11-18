@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<wsdl:definitions xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:hs="http://oss.dbc.dk/ns/openholdingstatus" xmlns:hsw="http://oss.dbc.dk/ns/openholdingstatus_wsdl" targetNamespace="http://oss.dbc.dk/ns/openholdingstatus_wsdl">
+<wsdl:definitions xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:hs="http://oss.dbc.dk/ns/openholdings" xmlns:hsw="http://oss.dbc.dk/ns/openholdings_wsdl" targetNamespace="http://oss.dbc.dk/ns/openholdings_wsdl">
 <wsdl:documentation>This file is part of OpenSearch.
 Copyright 2009, Dansk Bibliotekscenter a/s,  Tempovej 7-11, DK-2750 Ballerup, Denmark. CVR: 15149043
 
@@ -9,8 +9,8 @@ OpenSearch is distributed in the hope that it will be useful, but WITHOUT ANY WA
 
 You should have received a copy of the GNU Affero General Public License along with OpenSearch.  If not, see http://www.gnu.org/licenses</wsdl:documentation>
 	<wsdl:types>
-		<xs:schema elementFormDefault="qualified">
-			<xs:import namespace="http://oss.dbc.dk/ns/openholdingstatus" schemaLocation="openholdings.xsd"/>
+		<xs:schema xmlns:hs="http://oss.dbc.dk/ns/openholdings" xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified">
+			<xs:import namespace="http://oss.dbc.dk/ns/openholdings" schemaLocation="openholdings.xsd"/>
 		</xs:schema>
 	</wsdl:types>
 	<wsdl:message name="holdingsRequest">
