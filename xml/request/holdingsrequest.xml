@@ -4,7 +4,7 @@
   <ns1:lookupRecord>
     <ns1:responderId>DK-710100</ns1:responderId>
     <ns1:bibliographicRecordId>43512447</ns1:bibliographicRecordId>
-    <ns1:bibliographicRecordAgencyId>DK-790900</ns1:bibliographicRecordAgencyId>
+    <ns1:bibliographicRecordAgencyId>DK-870970</ns1:bibliographicRecordAgencyId>
   </ns1:lookupRecord>
 </ns1:holdingsRequest>
 </SOAP-ENV:Body></SOAP-ENV:Envelope>
