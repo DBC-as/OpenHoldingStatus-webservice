@@ -19,7 +19,7 @@
  * along with openLibrary.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-define("WSDL", "openholdings.wsdl");
+define("WSDL", "openholdingstatus.wsdl");
 
 try {
   $client = new SoapClient(WSDL,  array('trace' => 1, "cache_wsdl" => WSDL_CACHE_NONE));
