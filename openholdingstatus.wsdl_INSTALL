@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <wsdl:definitions xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:hs="http://oss.dbc.dk/ns/openholdingstatus" xmlns:hsw="http://oss.dbc.dk/ns/openholdingstatus_wsdl" targetNamespace="http://oss.dbc.dk/ns/openholdingstatus_wsdl">
-<wsdl:documentation>This file is part of OpenSearch.
+<wsdl:documentation>This file is part of Open Library System.
 Copyright 2009, Dansk Bibliotekscenter a/s,  Tempovej 7-11, DK-2750 Ballerup, Denmark. CVR: 15149043
 
-OpenSearch is free software: you can redistribute it and/or modify it under the terms of the GNU Affero General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+Open Library System is free software: you can redistribute it and/or modify it under the terms of the GNU Affero General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
 
-OpenSearch is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more details.
+Open Library System is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more details.
 
-You should have received a copy of the GNU Affero General Public License along with OpenSearch.  If not, see http://www.gnu.org/licenses</wsdl:documentation>
+You should have received a copy of the GNU Affero General Public License along with Open Library System.  If not, see http://www.gnu.org/licenses</wsdl:documentation>
 	<wsdl:types>
 		<xs:schema xmlns:hs="http://oss.dbc.dk/ns/openholdingstatus" xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified">
 			<xs:import namespace="http://oss.dbc.dk/ns/openholdingstatus" schemaLocation="openholdingstatus.xsd"/>
