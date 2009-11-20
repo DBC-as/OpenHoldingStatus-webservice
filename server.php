@@ -42,17 +42,18 @@ class openHoldings extends webServiceServer {
 	* }
 	*/
   function holdingsService($param) {
+    $hr = &$ret->holdingsResponse->_value;
     if (is_array($param->lookupRecord))
       foreach ($param->lookupRecord as $holding) {
 				$fh = $this->find_holding($holding->_value);
         if (is_scalar($fh)) {
           $err->responderId->_value = $holding->_value->responderId->_value;
           $err->errorMessage->_value = $fh;
-		      $ret->error[]->_value = $err;
+		      $hr->error[]->_value = $err;
           unset($err);
         } else {
           $fh->responderId->_value = $holding->_value->responderId->_value;
-          $ret->holdingsResponse->_value->responder[]->_value = $fh;
+          $hr->responder[]->_value = $fh;
 			  }
 			}
     else {
@@ -60,10 +61,10 @@ class openHoldings extends webServiceServer {
         if (is_scalar($fh)) {
           $err->responderId->_value = $param->lookupRecord->_value->responderId->_value;
           $err->errorMessage->_value = $fh;
-		      $ret->error->_value = $err;
+		      $hr->error->_value = $err;
         } else {
           $fh->responderId->_value = $param->lookupRecord->_value->responderId->_value;
-          $ret->holdingsResponse->_value->responder[]->_value = $fh;
+          $hr->responder[]->_value = $fh;
 			  }
 		}
 
