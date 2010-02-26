@@ -18,6 +18,7 @@ You should have received a copy of the GNU Affero General Public License along w
 		</xs:annotation>
 		<xs:complexType>
 			<xs:sequence>
+				<xs:element ref="hs:authentication" minOccurs="0"/>
 				<xs:element ref="hs:lookupRecord" maxOccurs="unbounded"/>
 				<xs:element ref="hs:callback" minOccurs="0"/>
 				<xs:element ref="hs:outputType" minOccurs="0"/>
@@ -58,6 +59,18 @@ You should have received a copy of the GNU Affero General Public License along w
 			</xs:sequence>
 		</xs:complexType>
 	</xs:element>
+	<xs:element name="authentication">
+		<xs:annotation>
+			<xs:documentation xml:lang="en">Parameters used for authentication purposes</xs:documentation>
+		</xs:annotation>
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="hs:groupIdAut"/>
+				<xs:element ref="hs:passwordAut"/>
+				<xs:element ref="hs:userIdAut"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
 	<xs:element name="bibliographicRecordId" type="xs:string">
 		<xs:annotation>
 			<xs:documentation xml:lang="en">Id of the bibliographic record of the materiale for which holdings are looked up.</xs:documentation>
@@ -74,22 +87,32 @@ You should have received a copy of the GNU Affero General Public License along w
 		</xs:annotation>
 	</xs:element>
 	<xs:element name="error">
-  <xs:complexType>
-  <xs:sequence>
-    <xs:element ref="hs:responderId"/>
-    <xs:element ref="hs:errorMessage"/>
-  </xs:sequence>
-  </xs:complexType>
-  </xs:element>
-  <xs:element name="errorMessage" type="hs:errorType"/>
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="hs:responderId"/>
+				<xs:element ref="hs:errorMessage"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="errorMessage" type="hs:errorType"/>
 	<xs:element name="expectedDelivery" type="xs:date">
 		<xs:annotation>
 			<xs:documentation>The date the responder expects to be able to deliver the material.</xs:documentation>
 		</xs:annotation>
 	</xs:element>
+	<xs:element name="groupIdAut">
+		<xs:annotation>
+			<xs:documentation xml:lang="en">Identifier of the group (most often a library number) the user belongs to (for authentication purposes)</xs:documentation>
+		</xs:annotation>
+	</xs:element>
 	<xs:element name="note" type="xs:string">
 		<xs:annotation>
 			<xs:documentation xml:lang="en">Note from local library. check_local_library is returned when a serial or multivolume record is found</xs:documentation>
+		</xs:annotation>
+	</xs:element>
+	<xs:element name="passwordAut">
+		<xs:annotation>
+			<xs:documentation xml:lang="en">Password (for authentication purposes)</xs:documentation>
 		</xs:annotation>
 	</xs:element>
 	<xs:element name="localHoldingsId" type="xs:string">
@@ -105,6 +128,11 @@ You should have received a copy of the GNU Affero General Public License along w
 	<xs:element name="responderId" type="xs:string">
 		<xs:annotation>
 			<xs:documentation xml:lang="en">Id of a specific agency that the holdings lookup has to be made towards, use DK-190101.</xs:documentation>
+		</xs:annotation>
+	</xs:element>
+	<xs:element name="userIdAut">
+		<xs:annotation>
+			<xs:documentation xml:lang="en">User identifier (for authentication purposes)</xs:documentation>
 		</xs:annotation>
 	</xs:element>
 	<xs:element name="willLend" type="xs:boolean">
