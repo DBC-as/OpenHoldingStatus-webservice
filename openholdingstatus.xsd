@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSpy v2010 rel. 2 (http://www.altova.com) by Dansk Bibliotekscenter A/S (Dansk Bibliotekscenter A/S) -->
 <xs:schema xmlns:hs="http://oss.dbc.dk/ns/openholdingstatus" xmlns:xs="http://www.w3.org/2001/XMLSchema" targetNamespace="http://oss.dbc.dk/ns/openholdingstatus" elementFormDefault="qualified">
 	<xs:annotation>
 		<xs:documentation xml:lang="en">Holdings Service</xs:documentation>
@@ -51,6 +52,8 @@ You should have received a copy of the GNU Affero General Public License along w
 	<xs:element name="responder">
 		<xs:complexType>
 			<xs:sequence>
+				<xs:element ref="hs:bibliographicRecordId"/>
+				<xs:element ref="hs:bibliographicRecordAgencyId"/>
 				<xs:element ref="hs:responderId"/>
 				<xs:element ref="hs:localHoldingsId"/>
 				<xs:element ref="hs:willLend"/>
@@ -78,7 +81,7 @@ You should have received a copy of the GNU Affero General Public License along w
 	</xs:element>
 	<xs:element name="bibliographicRecordAgencyId" type="xs:string">
 		<xs:annotation>
-			<xs:documentation xml:lang="en">Id of the agency owning the bibliographic record. If bibliographicRecordId is a FAUST number, use DK-190101</xs:documentation>
+			<xs:documentation xml:lang="en">Id of the agency owning the bibliographic record (If bibliographicRecordId is a FAUST number, use DK-190101)</xs:documentation>
 		</xs:annotation>
 	</xs:element>
 	<xs:element name="callback" type="xs:string">
@@ -117,7 +120,7 @@ You should have received a copy of the GNU Affero General Public License along w
 	</xs:element>
 	<xs:element name="localHoldingsId" type="xs:string">
 		<xs:annotation>
-			<xs:documentation xml:lang="en">The Id needed for direct ordering of the material in the local library system.</xs:documentation>
+			<xs:documentation xml:lang="en">The Id used for direct ordering of the material in the local library system.</xs:documentation>
 		</xs:annotation>
 	</xs:element>
 	<xs:element name="outputType" type="hs:outputTypeType">
@@ -127,7 +130,7 @@ You should have received a copy of the GNU Affero General Public License along w
 	</xs:element>
 	<xs:element name="responderId" type="xs:string">
 		<xs:annotation>
-			<xs:documentation xml:lang="en">Id of a specific agency that the holdings lookup has to be made towards, use DK-190101.</xs:documentation>
+			<xs:documentation xml:lang="en">Id of a specific agency that the holdings lookup has to be made towards.</xs:documentation>
 		</xs:annotation>
 	</xs:element>
 	<xs:element name="userIdAut">
