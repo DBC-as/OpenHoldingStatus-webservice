@@ -43,32 +43,44 @@ class openHoldings extends webServiceServer {
 	*/
   function holdingsService($param) {
     $hr = &$ret->holdingsResponse->_value;
+    if (!$this->aaa->has_right("openholdingstatus", 500))
+      $auth_error = "authentication_error";
     if (is_array($param->lookupRecord))
       foreach ($param->lookupRecord as $holding) {
-				$fh = $this->find_holding($holding->_value);
+        if (!$fh = $auth_error)
+				  $fh = $this->find_holding($holding->_value);
         if (is_scalar($fh)) {
+          $err->bibliographicRecordId->_value = $holding->_value->bibliographicRecordId->_value;
+          $err->bibliographicRecordAgencyId->_value = $holding->_value->bibliographicRecordAgencyId->_value;
           $err->responderId->_value = $holding->_value->responderId->_value;
           $err->errorMessage->_value = $fh;
 		      $hr->error[]->_value = $err;
           unset($err);
         } else {
+          $fh->bibliographicRecordId->_value = $holding->_value->bibliographicRecordId->_value;
+          $fh->bibliographicRecordAgencyId->_value = $holding->_value->bibliographicRecordAgencyId->_value;
           $fh->responderId->_value = $holding->_value->responderId->_value;
           $hr->responder[]->_value = $fh;
 			  }
 			}
     else {
-				$fh = $this->find_holding($param->lookupRecord->_value);
+        $holding = &$param->lookupRecord->_value;
+        if (!$fh = $auth_error)
+				  $fh = $this->find_holding($holding);
         if (is_scalar($fh)) {
-          $err->responderId->_value = $param->lookupRecord->_value->responderId->_value;
+          $err->bibliographicRecordId->_value = $holding->bibliographicRecordId->_value;
+          $err->bibliographicRecordAgencyId->_value = $holding->bibliographicRecordAgencyId->_value;
+          $err->responderId->_value = $holding->responderId->_value;
           $err->errorMessage->_value = $fh;
 		      $hr->error->_value = $err;
         } else {
-          $fh->responderId->_value = $param->lookupRecord->_value->responderId->_value;
+          $fh->bibliographicRecordId->_value = $holding->bibliographicRecordId->_value;
+          $fh->bibliographicRecordAgencyId->_value = $holding->bibliographicRecordAgencyId->_value;
+          $fh->responderId->_value = $holding->responderId->_value;
           $hr->responder[]->_value = $fh;
 			  }
 		}
 
-    $this->verbose->log(TIMER, "OpenHoldings:: " . $this->watch->dump());
     return $ret;
   }
 
@@ -96,7 +108,7 @@ class openHoldings extends webServiceServer {
       $hits = $z3950->z3950_search(5);
       $this->watch->stop("z3950");
       if ($z3950->get_error()) {
-        $this->verbose->log(ERROR, "OpenHoldings:: " . $zurl . " Z3950 error: " . $z3950->get_error_string());
+        verbose::log(ERROR, "OpenHoldings:: " . $zurl . " Z3950 error: " . $z3950->get_error_string());
         return "error_searching_library";
       }
       if (!$hits)
@@ -193,7 +205,7 @@ class openHoldings extends webServiceServer {
         $oci->set_charset("UTF8");
         $oci->connect();
         if ($err = $oci->get_error_string()) {
-          $this->verbose->log(FATAL, "OpenHoldings:: OCI connect error: " . $err);
+          verbose::log(FATAL, "OpenHoldings:: OCI connect error: " . $err);
           return FALSE;
         }
       }

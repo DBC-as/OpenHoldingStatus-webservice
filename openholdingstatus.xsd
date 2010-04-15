@@ -153,6 +153,7 @@ You should have received a copy of the GNU Affero General Public License along w
 			<xs:enumeration value="error_searching_library"/>
 			<xs:enumeration value="no_holding_return_from_library"/>
 			<xs:enumeration value="no_holdings_specified_by_library"/>
+			<xs:enumeration value="authentication_error"/>
 		</xs:restriction>
 	</xs:simpleType>
 	<xs:simpleType name="outputTypeType">
