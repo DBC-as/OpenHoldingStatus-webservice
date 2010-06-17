@@ -1,7 +1,7 @@
 ; Inifile for openholdings
 
 [setup]
-version = 0.1
+version = 0.2
 
 ; wsdl for service
 wsdl = openholdingstatus.wsdl
@@ -15,7 +15,7 @@ wsdl = openholdingstatus.wsdl
 soapAction[holdingsService] = holdingsRequest
 
 ; prefixes and namespaces
-xmlns[NONE] = http://oss.dbc.dk/ns/openholdingstatus
+xmlns[] = http://oss.dbc.dk/ns/openholdingstatus
 
 ; path to xml-examples
 xmldir = ./xml
@@ -36,6 +36,29 @@ logfile = /tmp/openholdingstatus.log
 verbose = WARNING+ERROR+FATAL+STAT+TIMER+TRACE+DEBUG+Z3950+OCI
 
 vip_credentials = user/password@my.oracler.server
+
+[aaa]
+; aaa Authentication, Access control and Accounting
+; if aaa_credentials is set, the rights-object is created from
+; the FORS-server or aaa_ip_rights below
+;
+; oci credentials for FORS server
+;aaa_credentials = ora_user/ora_passwd@some.server.dk
+;aaa_credentials = next_vip_kig/next@tora1.dbc.dk
+; memcache server - use localhost in one-webserver environment
+;aaa_cache_address = localhost:11211
+; number of seconds to cache authentication and access rights info
+;aaa_cache_seconds = 3600
+;
+; As an alternative to FORS rights, rights can be set here for selected ip-addresses
+; aaa_ip_rights[group-identifier][ip_list] = commaseparated list of ip's
+; aaa_ip_rights[group-identifier][ressource][<named ressource>] = right to <named ressource>
+; aaa_ip_rights[group-identifier][ressource][<named ressource 2>] = right to <named ressource 2>
+;
+;aaa_ip_rights[dbc][ip_list] = 172.16.0.0-172.31.255.255;193.111.162.0-193.111.162.255
+;aaa_ip_rights[dbc][ressource][openholdingstatus] = 500
+
+
 
 [rest]
 soap_header = <?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?><SOAP-ENV:Envelope xmlns:SOAP-ENV=&quot;http://schemas.xmlsoap.org/soap/envelope/&quot; xmlns=&quot;http://oss.dbc.dk/ns/openholdingstatus&quot;><SOAP-ENV:Body>
@@ -58,16 +81,14 @@ soap_footer = </SOAP-ENV:Body></SOAP-ENV:Envelope>
 ; </thisSoapAction>
 ; from url: action=thisSoapAction&some.number=nn&another.number=mm
 ;
-; acction[ALL] defines parameter used in all defined soap-actions
-;
-action[ALL][] = callback
-action[ALL][] = outputType
 action[holdingsService][] = responderId
 action[holdingsService][] = bibliographicRecordId
 action[holdingsService][] = bibliographicRecordAgencyId
+action[holdingsService][] = callback
+action[holdingsService][] = outputType
 
 
 [howru]
-test[] = holdingsService&responderId=DK-790900&bibliographicRecordId=12343&bibliographicRecordAgencyId=DK-710100
-preg_match[] = willLend
-error[] = ERROR checking for holdings
+;test[] = holdingsService&responderId=DK-790900&bibliographicRecordId=12343&bibliographicRecordAgencyId=DK-710100
+;preg_match[] = willLend
+;error[] = ERROR checking for holdings

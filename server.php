@@ -192,7 +192,10 @@ class openHoldings extends webServiceServer {
 
         $hold[] = $h;
 			}
-		  return $hold;
+      if (empty($hold))
+        return array(array("note" => "No holding"));
+      else
+		    return $hold;
 		} else
 		  return FALSE;
   }
