@@ -19,10 +19,22 @@ You should have received a copy of the GNU Affero General Public License along w
 	<wsdl:message name="holdingsResponse">
 		<wsdl:part name="body" element="hs:holdingsResponse"/>
 	</wsdl:message>
+	<wsdl:message name="pidHoldingsRequest">
+		<wsdl:part name="body" element="hs:pidHoldingsRequest"/>
+	</wsdl:message>
+	<wsdl:message name="pidHoldingsResponse">
+		<wsdl:part name="body" element="hs:pidHoldingsResponse"/>
+	</wsdl:message>
 	<wsdl:portType name="holdingsServicePortType">
 		<wsdl:operation name="holdingsService">
 			<wsdl:input message="hsw:holdingsRequest"/>
 			<wsdl:output message="hsw:holdingsResponse"/>
+		</wsdl:operation>
+	</wsdl:portType>
+	<wsdl:portType name="pidHoldingsServicePortType">
+		<wsdl:operation name="pidHoldingsService">
+			<wsdl:input message="hsw:pidHoldingsRequest"/>
+			<wsdl:output message="hsw:pidHoldingsResponse"/>
 		</wsdl:operation>
 	</wsdl:portType>
 	<wsdl:binding name="holdingsServiceBinding" type="hsw:holdingsServicePortType">
@@ -37,8 +49,23 @@ You should have received a copy of the GNU Affero General Public License along w
 			</wsdl:output>
 		</wsdl:operation>
 	</wsdl:binding>
+	<wsdl:binding name="pidHoldingsServiceBinding" type="hsw:pidHoldingsServicePortType">
+		<soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+		<wsdl:operation name="pidHoldingsService">
+			<soap:operation soapAction="http://addi.dk/pidHoldingsService"/>
+			<wsdl:input name="pidHoldingsRequest">
+				<soap:body use="literal"/>
+			</wsdl:input>
+			<wsdl:output name="pidHoldingsResponse">
+				<soap:body use="literal"/>
+			</wsdl:output>
+		</wsdl:operation>
+	</wsdl:binding>
 	<wsdl:service name="holdingsServiceService">
 		<wsdl:port binding="hsw:holdingsServiceBinding" name="holdingsServicePortType">
+			<soap:address location="http://addi.dk"/>
+		</wsdl:port>
+		<wsdl:port binding="hsw:pidHoldingsServiceBinding" name="pidHoldingsServicePortType">
 			<soap:address location="http://addi.dk"/>
 		</wsdl:port>
 	</wsdl:service>
