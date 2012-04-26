@@ -39,13 +39,13 @@ You should have received a copy of the GNU Affero General Public License along w
 	</xs:element>
 	<xs:element name="pidHoldingsRequest">
 		<xs:annotation>
-			<xs:documentation xml:lang="en">The service request for looking up which agencies a given material (identified by it's PID) is available from. List of agencies are returned in prioritsed order based on the request order (laaneveje) set for the requesting agency.</xs:documentation>
+			<xs:documentation xml:lang="en">The service request for looking up which agencies one or more given materials (identified by their PIDs) are available from. A list of agencies are returned for each requested PID in prioritsed order based on the request order (laaneveje) set for the requesting agency.</xs:documentation>
 		</xs:annotation>
 		<xs:complexType>
 			<xs:sequence>
 				<xs:element ref="hs:authentication" minOccurs="0"/>
 				<xs:element ref="hs:agencyId"/>
-				<xs:element ref="hs:pid"/>
+				<xs:element ref="hs:pid" maxOccurs="unbounded"/>
 				<xs:element ref="hs:callback" minOccurs="0"/>
 				<xs:element ref="hs:outputType" minOccurs="0"/>
 			</xs:sequence>
@@ -53,11 +53,14 @@ You should have received a copy of the GNU Affero General Public License along w
 	</xs:element>
 	<xs:element name="pidHoldingsResponse">
 		<xs:annotation>
-			<xs:documentation xml:lang="en">Agencies from which the requested material is available. Sorted by the request order set for the agencyId in xRequest</xs:documentation>
+			<xs:documentation xml:lang="en">Agencies from which the requested materials are available. Sorted by the request order for the agencyId set in pidHoldingsRequest</xs:documentation>
 		</xs:annotation>
 		<xs:complexType>
 			<xs:choice>
-				<xs:element ref="hs:agencyId" maxOccurs="unbounded"/>
+				<xs:sequence maxOccurs="unbounded">
+					<xs:element ref="hs:pid"/>
+					<xs:element ref="hs:agencyId" maxOccurs="unbounded"/>
+				</xs:sequence>
 				<xs:element ref="hs:error"/>
 			</xs:choice>
 		</xs:complexType>
