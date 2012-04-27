@@ -37,7 +37,7 @@ You should have received a copy of the GNU Affero General Public License along w
 			</xs:choice>
 		</xs:complexType>
 	</xs:element>
-	<xs:element name="pidHoldingsRequest">
+	<xs:element name="illHoldingsRequest">
 		<xs:annotation>
 			<xs:documentation xml:lang="en">The service request for looking up which agencies one or more given materials (identified by their PIDs) are available from. A list of agencies are returned for each requested PID in prioritsed order based on the request order (laaneveje) set for the requesting agency.</xs:documentation>
 		</xs:annotation>
@@ -51,7 +51,7 @@ You should have received a copy of the GNU Affero General Public License along w
 			</xs:sequence>
 		</xs:complexType>
 	</xs:element>
-	<xs:element name="pidHoldingsResponse">
+	<xs:element name="illHoldingsResponse">
 		<xs:annotation>
 			<xs:documentation xml:lang="en">Agencies from which the requested materials are available. Sorted by the request order for the agencyId set in pidHoldingsRequest</xs:documentation>
 		</xs:annotation>
