@@ -53,7 +53,7 @@ You should have received a copy of the GNU Affero General Public License along w
 	</xs:element>
 	<xs:element name="illHoldingsResponse">
 		<xs:annotation>
-			<xs:documentation xml:lang="en">Agencies from which the requested materials are available. Sorted by the request order for the agencyId set in pidHoldingsRequest</xs:documentation>
+			<xs:documentation xml:lang="en">Agencies from which the requested materials are available. Sorted by the request order for the agencyId set in illHoldingsRequest</xs:documentation>
 		</xs:annotation>
 		<xs:complexType>
 			<xs:choice>
