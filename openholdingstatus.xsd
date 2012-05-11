@@ -15,12 +15,15 @@ You should have received a copy of the GNU Affero General Public License along w
 	</xs:annotation>
 	<xs:element name="holdingsRequest">
 		<xs:annotation>
-			<xs:documentation xml:lang="en">The service request for checking whether one or more specified agencies can provide a given material</xs:documentation>
+			<xs:documentation xml:lang="en">The service request for checking various agencies' holdings of a given material</xs:documentation>
 		</xs:annotation>
 		<xs:complexType>
 			<xs:sequence>
 				<xs:element ref="hs:authentication" minOccurs="0"/>
-				<xs:element ref="hs:lookupRecord" maxOccurs="unbounded"/>
+				<xs:choice>
+					<xs:element ref="hs:lookupRecord" maxOccurs="unbounded"/>
+					<xs:element ref="hs:lookupPid"/>
+				</xs:choice>
 				<xs:element ref="hs:callback" minOccurs="0"/>
 				<xs:element ref="hs:outputType" minOccurs="0"/>
 			</xs:sequence>
@@ -32,67 +35,26 @@ You should have received a copy of the GNU Affero General Public License along w
 		</xs:annotation>
 		<xs:complexType>
 			<xs:choice>
+				<xs:element ref="hs:agencies" maxOccurs="unbounded"/>
 				<xs:element ref="hs:responder" maxOccurs="unbounded"/>
 				<xs:element ref="hs:error" maxOccurs="unbounded"/>
 			</xs:choice>
 		</xs:complexType>
 	</xs:element>
-	<xs:element name="illHoldingsRequest">
+	<xs:element name="agencies">
 		<xs:annotation>
-			<xs:documentation xml:lang="en">The service request for looking up which agencies one or more given materials (identified by their PIDs) are available from. A list of agencies are returned for each requested PID in prioritsed order based on the request order (laaneveje) set for the requesting agency.</xs:documentation>
+			<xs:documentation xml:lang="en">Used when holdingsRequest is based on lookupPid. Agencies from which the requested materials are available. Sorted by the request order for the agencyId set in illHoldingsRequest</xs:documentation>
 		</xs:annotation>
 		<xs:complexType>
 			<xs:sequence>
-				<xs:element ref="hs:authentication" minOccurs="0"/>
-				<xs:element ref="hs:agencyId"/>
-				<xs:element ref="hs:pid" maxOccurs="unbounded"/>
-				<xs:element ref="hs:callback" minOccurs="0"/>
-				<xs:element ref="hs:outputType" minOccurs="0"/>
-			</xs:sequence>
-		</xs:complexType>
-	</xs:element>
-	<xs:element name="illHoldingsResponse">
-		<xs:annotation>
-			<xs:documentation xml:lang="en">Agencies from which the requested materials are available. Sorted by the request order for the agencyId set in illHoldingsRequest</xs:documentation>
-		</xs:annotation>
-		<xs:complexType>
-			<xs:choice>
-				<xs:sequence maxOccurs="unbounded">
-					<xs:element ref="hs:pid"/>
-					<xs:element ref="hs:agencyId" maxOccurs="unbounded"/>
-				</xs:sequence>
-				<xs:element ref="hs:error"/>
-			</xs:choice>
-		</xs:complexType>
-	</xs:element>
-	<xs:element name="lookupRecord">
-		<xs:annotation>
-			<xs:documentation xml:lang="en">Id of the responder of a specific holdings request.</xs:documentation>
-		</xs:annotation>
-		<xs:complexType>
-			<xs:sequence>
-				<xs:element ref="hs:responderId" minOccurs="0"/>
-				<xs:element ref="hs:bibliographicRecordId"/>
-				<xs:element ref="hs:bibliographicRecordAgencyId"/>
-			</xs:sequence>
-		</xs:complexType>
-	</xs:element>
-	<xs:element name="responder">
-		<xs:complexType>
-			<xs:sequence>
-				<xs:element ref="hs:bibliographicRecordId"/>
-				<xs:element ref="hs:bibliographicRecordAgencyId"/>
-				<xs:element ref="hs:responderId"/>
-				<xs:element ref="hs:localHoldingsId"/>
-				<xs:element ref="hs:willLend"/>
-				<xs:element ref="hs:note"/>
-				<xs:element ref="hs:expectedDelivery" minOccurs="0"/>
+				<xs:element ref="hs:pid"/>
+				<xs:element ref="hs:agencyId" maxOccurs="unbounded"/>
 			</xs:sequence>
 		</xs:complexType>
 	</xs:element>
 	<xs:element name="agencyId">
 		<xs:annotation>
-			<xs:documentation xml:lang="en">...</xs:documentation>
+			<xs:documentation xml:lang="en">Identfier of agency</xs:documentation>
 		</xs:annotation>
 	</xs:element>
 	<xs:element name="authentication">
@@ -125,6 +87,7 @@ You should have received a copy of the GNU Affero General Public License along w
 	<xs:element name="error">
 		<xs:complexType>
 			<xs:sequence>
+				<xs:element ref="hs:pid" minOccurs="0"/>
 				<xs:element ref="hs:responderId" minOccurs="0"/>
 				<xs:element ref="hs:errorMessage"/>
 			</xs:sequence>
@@ -141,19 +104,37 @@ You should have received a copy of the GNU Affero General Public License along w
 			<xs:documentation xml:lang="en">Identifier of the group (most often a library number) the user belongs to (for authentication purposes)</xs:documentation>
 		</xs:annotation>
 	</xs:element>
-	<xs:element name="note" type="xs:string">
-		<xs:annotation>
-			<xs:documentation xml:lang="en">Note from local library. check_local_library is returned when a serial or multivolume record is found</xs:documentation>
-		</xs:annotation>
-	</xs:element>
-	<xs:element name="passwordAut" type="xs:string">
-		<xs:annotation>
-			<xs:documentation xml:lang="en">Password (for authentication purposes)</xs:documentation>
-		</xs:annotation>
-	</xs:element>
 	<xs:element name="localHoldingsId" type="xs:string">
 		<xs:annotation>
 			<xs:documentation xml:lang="en">The Id used for direct ordering of the material in the local library system.</xs:documentation>
+		</xs:annotation>
+	</xs:element>
+	<xs:element name="lookupPid">
+		<xs:annotation>
+			<xs:documentation xml:lang="en">Look up which agencies one or more given materials (identified by their PIDs) are available from. A list of agencies are returned for each requested PID in prioritsed order based on the request order (laaneveje) set for the requesting agency.</xs:documentation>
+		</xs:annotation>
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="hs:agencyId"/>
+				<xs:element ref="hs:pid" maxOccurs="unbounded"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="lookupRecord">
+		<xs:annotation>
+			<xs:documentation xml:lang="en">Id of the responder of a specific holdings request.</xs:documentation>
+		</xs:annotation>
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="hs:responderId" minOccurs="0"/>
+				<xs:element ref="hs:bibliographicRecordId"/>
+				<xs:element ref="hs:bibliographicRecordAgencyId"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="note" type="xs:string">
+		<xs:annotation>
+			<xs:documentation xml:lang="en">Note from local library. check_local_library is returned when a serial or multivolume record is found</xs:documentation>
 		</xs:annotation>
 	</xs:element>
 	<xs:element name="outputType" type="hs:outputTypeType">
@@ -161,10 +142,31 @@ You should have received a copy of the GNU Affero General Public License along w
 			<xs:documentation xml:lang="en">E.g. xml, json or php.</xs:documentation>
 		</xs:annotation>
 	</xs:element>
+	<xs:element name="passwordAut" type="xs:string">
+		<xs:annotation>
+			<xs:documentation xml:lang="en">Password (for authentication purposes)</xs:documentation>
+		</xs:annotation>
+	</xs:element>
 	<xs:element name="pid" type="xs:string">
 		<xs:annotation>
 			<xs:documentation xml:lang="en">Identifier of Open Search-object</xs:documentation>
 		</xs:annotation>
+	</xs:element>
+	<xs:element name="responder">
+		<xs:annotation>
+			<xs:documentation xml:lang="en">Used when holdingsRequest is based on lookupRecord</xs:documentation>
+		</xs:annotation>
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="hs:bibliographicRecordId"/>
+				<xs:element ref="hs:bibliographicRecordAgencyId"/>
+				<xs:element ref="hs:responderId"/>
+				<xs:element ref="hs:localHoldingsId"/>
+				<xs:element ref="hs:willLend"/>
+				<xs:element ref="hs:note"/>
+				<xs:element ref="hs:expectedDelivery" minOccurs="0"/>
+			</xs:sequence>
+		</xs:complexType>
 	</xs:element>
 	<xs:element name="responderId" type="xs:string">
 		<xs:annotation>
