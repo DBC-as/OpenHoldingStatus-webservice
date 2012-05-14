@@ -1,7 +1,7 @@
 ; Inifile for openholdings
 
 [setup]
-version = 0.2
+version = 0.3
 
 ; wsdl for service
 wsdl = openholdingstatus.wsdl
@@ -36,6 +36,9 @@ logfile = /tmp/openholdingstatus.log
 verbose = WARNING+ERROR+FATAL+STAT+TIMER+TRACE+DEBUG+Z3950+OCI
 
 vip_credentials = user/password@my.oracler.server
+
+; url to holdings-/localization-service 
+ols_get_holdings = http://some.server.dk:9080/holdings-service/getAllHoldings?requestOrderBib=%s&pid=%s
 
 [aaa]
 ; aaa Authentication, Access control and Accounting
