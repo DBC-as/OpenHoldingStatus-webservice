@@ -88,6 +88,8 @@ You should have received a copy of the GNU Affero General Public License along w
 		<xs:complexType>
 			<xs:sequence>
 				<xs:element ref="hs:pid" minOccurs="0"/>
+				<xs:element ref="hs:bibliographicRecordId" minOccurs="0"/>
+				<xs:element ref="hs:bibliographicRecordAgencyId" minOccurs="0"/>
 				<xs:element ref="hs:responderId" minOccurs="0"/>
 				<xs:element ref="hs:errorMessage"/>
 			</xs:sequence>
