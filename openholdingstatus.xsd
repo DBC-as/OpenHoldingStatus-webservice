@@ -160,13 +160,13 @@ You should have received a copy of the GNU Affero General Public License along w
 		</xs:annotation>
 		<xs:complexType>
 			<xs:sequence>
+				<xs:element ref="hs:localHoldingsId"/>
+				<xs:element ref="hs:note"/>
+				<xs:element ref="hs:willLend"/>
+				<xs:element ref="hs:expectedDelivery" minOccurs="0"/>
 				<xs:element ref="hs:bibliographicRecordId"/>
 				<xs:element ref="hs:bibliographicRecordAgencyId"/>
 				<xs:element ref="hs:responderId"/>
-				<xs:element ref="hs:localHoldingsId"/>
-				<xs:element ref="hs:willLend"/>
-				<xs:element ref="hs:note"/>
-				<xs:element ref="hs:expectedDelivery" minOccurs="0"/>
 			</xs:sequence>
 		</xs:complexType>
 	</xs:element>
