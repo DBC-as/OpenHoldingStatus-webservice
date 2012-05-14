@@ -39,6 +39,7 @@ vip_credentials = user/password@my.oracler.server
 
 [aaa]
 ; aaa Authentication, Access control and Accounting
+;
 ; if aaa_credentials is set, the rights-object is created from
 ; the FORS-server or aaa_ip_rights below
 ;
@@ -81,9 +82,9 @@ soap_footer = </SOAP-ENV:Body></SOAP-ENV:Envelope>
 ; </thisSoapAction>
 ; from url: action=thisSoapAction&some.number=nn&another.number=mm
 ;
-action[holdingsService][] = responderId
-action[holdingsService][] = bibliographicRecordId
-action[holdingsService][] = bibliographicRecordAgencyId
+action[holdingsService][lookupRecord][] = responderId
+action[holdingsService][lookupRecord][] = bibliographicRecordId
+action[holdingsService][lookupRecord][] = bibliographicRecordAgencyId
 action[holdingsService][] = callback
 action[holdingsService][] = outputType
 
