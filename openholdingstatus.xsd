@@ -59,7 +59,11 @@ You should have received a copy of the GNU Affero General Public License along w
 			<xs:choice>
 				<xs:sequence maxOccurs="unbounded">
 					<xs:element ref="hs:pid"/>
-					<xs:element ref="hs:agencyId" maxOccurs="unbounded"/>
+					<xs:sequence maxOccurs="unbounded">
+						<xs:element ref="hs:agencyId"/>
+						<xs:element ref="hs:note"/>
+						<xs:element ref="hs:codes"/>
+					</xs:sequence>
 				</xs:sequence>
 				<xs:element ref="hs:error"/>
 			</xs:choice>
@@ -97,6 +101,7 @@ You should have received a copy of the GNU Affero General Public License along w
 			<xs:documentation xml:lang="en">If outputType=json.</xs:documentation>
 		</xs:annotation>
 	</xs:element>
+	<xs:element name="codes" type="xs:string"/>
 	<xs:element name="error">
 		<xs:complexType>
 			<xs:sequence>
