@@ -30,49 +30,34 @@ class openHoldings extends webServiceServer {
 
  /*
   * request:
-  * - lookupRecord
-  * - - responderId: librarycode for lookup-library
-  * - - bibliographicRecordId: requester record id 
-  * - - bibliographicRecordAgencyId: requester record library
-  * or
-  * - lookupPid
-  * - - agencyId: Identifier of agency
-  * - - pid: Identifier of Open Search object
+  * - agencyId: Identifier of agency
+  * - pid: Identifier of Open Search object
   * response:
   * - agencies
   * - - pid: Identifier of Open Search object
   * - - agencyId: Identifier of agency
-  * - responder
-  * - - bibliographicRecordId: requester record id 
-  * - - bibliographicRecordAgencyId: requester record library
-  * - - responderId: librarycode for lookup-library
-  * - - localHoldingsId
-  * - - willLend;
-  * - - note:
-  * - - expectedDelivery;
+  * - - note: Note from local library
+  * - - codes: string
   * - error
   * - - pid: Identifier of Open Search object
   * - - responderId: librarycode for lookup-library
   * - - errorMessage: 
-  * }
   */
-  function holdingsService($param) {
-    $hr = &$ret->holdingsResponse->_value;
-    if (!$this->aaa->has_right("openholdingstatus", 500))
-      $auth_error = "authentication_error";
-    if (isset($param->lookupPid)) {
-      // force to array
-      if (!is_array($param->lookupPid)) {
-        $help = $param->lookupPid;
-        unset($param->lookupPid);
-        $param->lookupPid[] = $help;
-      }
+  public function localisation($param) {
+    $lr = &$ret->localisationResponse->_value;
+    if (!$this->aaa->has_right("openholdingstatus", 500)) {
+      $lr->responderId->_value = $param->agencyId->_value;
+      $lr->errorMessage->_value = "authentication_error";
+    }
+    else {
+      is_array($param->pid) ? $pids = $param->pid : $pids[] = $param->pid;
       $curl = new curl();
       $curl->set_option(CURLOPT_TIMEOUT, 30);
-      foreach ($param->lookupPid as $pid) {
+// if more than one pid, this could be parallelized
+      foreach ($pids as $pid) {
         $url = sprintf($this->config->get_value("ols_get_holdings","setup"), 
-                       $this->strip_agency($pid->_value->agencyId->_value), 
-                       urlencode($pid->_value->pid->_value));
+                       $this->strip_agency($param->agencyId->_value), 
+                       urlencode($pid->_value));
         $res = $curl->get($url);
         $curl_status = $curl->get_status();
         if ($curl_status['http_code'] == 200) {
@@ -87,14 +72,20 @@ class openHoldings extends webServiceServer {
 //   <note></note>
 //   <codes></codes>
 // </holding>
-            if ($result = $dom->getElementsByTagName('holding')->item(0)) {
-              foreach ($result->childNodes as $node) {
-                $hold[$node->localName] = $node->nodeValue;
+            if ($holdings = $dom->getElementsByTagName('holding')) {
+              $one_pid->pid->_value = $pid->_value;
+              foreach ($holdings as $holding) {
+                foreach ($holding->childNodes as $node) {
+                  $hold[$node->localName] = $node->nodeValue;
+                }
+                $agency->agencyId->_value = $hold['agencyId'];
+                if ($hold['note']) $agency->note->_value = $hold['note'];
+                if ($hold['codes']) $agency->codes->_value = $hold['codes'];
+                $one_pid->agency[]->_value = $agency;
+                unset($agency);
               }
-              $fh->pid->_value = $pid->_value->pid->_value;
-              $fh->agencyId->_value = $hold['agencyId'];
-              unset($hold);
-              $hr->agencies[]->_value = $fh;
+              $lr->agencies[]->_value = $one_pid;
+              unset($one_pid);
             }
           }
           else {
@@ -103,22 +94,48 @@ class openHoldings extends webServiceServer {
         }
         else {
           $error = 'no_holding_return_from_library';
+          verbose::log(ERROR, 'OpenHoldings:: http code: ' . $curl_status['http_code'] .
+                              ' error: "' . $curl_status['error'] .
+                              '" for: ' . $curl_status['url']);
         }
         if ($error) {
-          $err->pid->_value = $pid->_value->pid->_value;
-          $err->responderId->_value = $pid->_value->agencyId->_value;
+          $err->pid->_value = $pid->_value;
+          $err->responderId->_value = $param->agencyId->_value;
           $err->errorMessage->_value = $error;
-          $hr->error[]->_value = $err;
+          $lr->error[]->_value = $err;
           unset($err);
           unset($error);
         }
-//var_dump($pid); 
-//var_dump($url); 
-//var_dump($res); 
-//var_dump($curl_status); die();
-        
       }
     }
+    return $ret;
+  }
+
+ /*
+  * request:
+  * - lookupRecord
+  * - - responderId: librarycode for lookup-library
+  * - - bibliographicRecordId: requester record id 
+  * - - bibliographicRecordAgencyId: requester record library
+  * response:
+  * - responder
+  * - - localHoldingsId
+  * - - note:
+  * - - willLend;
+  * - - expectedDelivery;
+  * - - bibliographicRecordId: requester record id 
+  * - - bibliographicRecordAgencyId: requester record library
+  * - - responderId: librarycode for lookup-library
+  * - error
+  * - - bibliographicRecordId: requester record id 
+  * - - bibliographicRecordAgencyId: requester record library
+  * - - responderId: librarycode for lookup-library
+  * - - errorMessage: 
+  */
+  public function holdingsService($param) {
+    $hr = &$ret->holdingsResponse->_value;
+    if (!$this->aaa->has_right("openholdingstatus", 500))
+      $auth_error = "authentication_error";
     if (isset($param->lookupRecord)) {
       // force to array
       if (!is_array($param->lookupRecord)) {

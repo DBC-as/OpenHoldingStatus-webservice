@@ -13,6 +13,7 @@ wsdl = openholdingstatus.wsdl
 ; soapActions and their corresponding request structure
 ; Can be found in the wsdl but is stated here for convenience
 soapAction[holdingsService] = holdingsRequest
+soapAction[localisation] = localisationRequest
 
 ; prefixes and namespaces
 xmlns[] = http://oss.dbc.dk/ns/openholdingstatus
@@ -90,6 +91,11 @@ action[holdingsService][lookupRecord][] = bibliographicRecordId
 action[holdingsService][lookupRecord][] = bibliographicRecordAgencyId
 action[holdingsService][] = callback
 action[holdingsService][] = outputType
+
+action[localisation][] = agencyId
+action[localisation][] = pid
+action[localisation][] = callback
+action[localisation][] = outputType
 
 
 [howru]
