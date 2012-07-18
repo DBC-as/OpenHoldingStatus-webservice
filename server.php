@@ -33,7 +33,7 @@ class openHoldings extends webServiceServer {
   * - agencyId: Identifier of agency
   * - pid: Identifier of Open Search object
   * response:
-  * - agencies
+  * - localisations
   * - - pid: Identifier of Open Search object
   * - - agencyId: Identifier of agency
   * - - note: Note from local library
@@ -43,8 +43,8 @@ class openHoldings extends webServiceServer {
   * - - responderId: librarycode for lookup-library
   * - - errorMessage: 
   */
-  public function localisation($param) {
-    $lr = &$ret->localisationResponse->_value;
+  public function localisations($param) {
+    $lr = &$ret->localisationsResponse->_value;
     if (!$this->aaa->has_right("openholdingstatus", 500)) {
       $lr->responderId->_value = $param->agencyId->_value;
       $lr->errorMessage->_value = "authentication_error";
@@ -78,13 +78,14 @@ class openHoldings extends webServiceServer {
                 foreach ($holding->childNodes as $node) {
                   $hold[$node->localName] = $node->nodeValue;
                 }
+                $agency->localisationPid ->_value = $holding->getAttribute('fedoraPid');
                 $agency->agencyId->_value = $hold['agencyId'];
                 if ($hold['note']) $agency->note->_value = $hold['note'];
                 if ($hold['codes']) $agency->codes->_value = $hold['codes'];
                 $one_pid->agency[]->_value = $agency;
                 unset($agency);
               }
-              $lr->agencies[]->_value = $one_pid;
+              $lr->localisations[]->_value = $one_pid;
               unset($one_pid);
             }
           }
