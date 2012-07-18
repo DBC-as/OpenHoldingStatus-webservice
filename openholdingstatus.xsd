@@ -65,6 +65,7 @@ You should have received a copy of the GNU Affero General Public License along w
 	<xs:element name="agency">
 		<xs:complexType>
 			<xs:sequence>
+				<xs:element ref="hs:localisationPid"/>
 				<xs:element ref="hs:agencyId"/>
 				<xs:element ref="hs:note" minOccurs="0"/>
 				<xs:element ref="hs:codes" minOccurs="0"/>
@@ -151,6 +152,11 @@ You should have received a copy of the GNU Affero General Public License along w
 				<xs:element ref="hs:agency" minOccurs="0" maxOccurs="unbounded"/>
 			</xs:sequence>
 		</xs:complexType>
+	</xs:element>
+	<xs:element name="localisationPid" type="xs:string">
+		<xs:annotation>
+			<xs:documentation xml:lang="en">PID of the localisation</xs:documentation>
+		</xs:annotation>
 	</xs:element>
 	<xs:element name="lookupRecord">
 		<xs:annotation>
