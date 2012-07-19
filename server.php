@@ -116,6 +116,8 @@ class openHoldings extends webServiceServer {
   * request:
   * - lookupRecord
   * - - responderId: librarycode for lookup-library
+  * - - pid
+  * - or next 2
   * - - bibliographicRecordId: requester record id 
   * - - bibliographicRecordAgencyId: requester record library
   * response:
@@ -124,16 +126,20 @@ class openHoldings extends webServiceServer {
   * - - note:
   * - - willLend;
   * - - expectedDelivery;
+  * - - pid
+  * - or next 2
   * - - bibliographicRecordId: requester record id 
   * - - bibliographicRecordAgencyId: requester record library
   * - - responderId: librarycode for lookup-library
   * - error
+  * - - pid
+  * - or next 2
   * - - bibliographicRecordId: requester record id 
   * - - bibliographicRecordAgencyId: requester record library
   * - - responderId: librarycode for lookup-library
   * - - errorMessage: 
   */
-  public function holdingsService($param) {
+  public function holdings($param) {
     $hr = &$ret->holdingsResponse->_value;
     if (!$this->aaa->has_right("openholdingstatus", 500))
       $auth_error = "authentication_error";
@@ -147,16 +153,19 @@ class openHoldings extends webServiceServer {
       foreach ($param->lookupRecord as $holding) {
         if (!$fh = $auth_error)
           $fh = $this->find_holding($holding->_value);
+        unset($recid);
         if (is_scalar($fh)) {
-          $err->bibliographicRecordId->_value = $holding->_value->bibliographicRecordId->_value;
-          $err->bibliographicRecordAgencyId->_value = $holding->_value->bibliographicRecordAgencyId->_value;
+          $this->add_recid($err, $holding);
+          //$err->bibliographicRecordId->_value = $holding->_value->bibliographicRecordId->_value;
+          //$err->bibliographicRecordAgencyId->_value = $holding->_value->bibliographicRecordAgencyId->_value;
           $err->responderId->_value = $holding->_value->responderId->_value;
           $err->errorMessage->_value = $fh;
           $hr->error[]->_value = $err;
           unset($err);
         } else {
-          $fh->bibliographicRecordId->_value = $holding->_value->bibliographicRecordId->_value;
-          $fh->bibliographicRecordAgencyId->_value = $holding->_value->bibliographicRecordAgencyId->_value;
+          $this->add_recid($fh, $holding);
+          //$fh->bibliographicRecordId->_value = $holding->_value->bibliographicRecordId->_value;
+          //$fh->bibliographicRecordAgencyId->_value = $holding->_value->bibliographicRecordAgencyId->_value;
           $fh->responderId->_value = $holding->_value->responderId->_value;
           $hr->responder[]->_value = $fh;
         }
@@ -166,9 +175,21 @@ class openHoldings extends webServiceServer {
     return $ret;
   }
 
+  private function add_recid(&$obj, &$hold) {
+    if (isset($hold->_value->pid)) {
+      $obj->pid->_value = $hold->_value->pid->_value;
+    }
+    else {
+      $obj->bibliographicRecordId->_value = $hold->_value->bibliographicRecordId->_value;
+      $obj->bibliographicRecordAgencyId->_value = $hold->_value->bibliographicRecordAgencyId->_value;
+    }
+  }
+
  /*
   * struct lookupRecord {
   *   string responderId;
+  *   string pid;
+  * - or next 2
   *   string bibliographicRecordId;
   *   string bibliographicRecordAgencyId;
   *  }
@@ -185,7 +206,13 @@ class openHoldings extends webServiceServer {
       $z3950->set_schema("1.2.840.10003.13.7.2");
       $z3950->set_start(1);
       $z3950->set_step(1);
-      $z3950->set_rpn("@attr 4=103 @attr BIB1 1=12 " . $holding->bibliographicRecordId->_value);
+      if (isset($holding->pid)) {
+        list($bibpart, $recid) = explode(':', $holding->pid->_value);
+        //list($holding->bibliographicRecordAgencyId->_value, $source) = explode('-', $bibpart);
+        $z3950->set_rpn("@attr 4=103 @attr BIB1 1=12 " . $recid);
+      } else {
+        $z3950->set_rpn("@attr 4=103 @attr BIB1 1=12 " . $holding->bibliographicRecordId->_value);
+      }
       $this->watch->start("z3950");
       $hits = $z3950->z3950_search(5);
       $this->watch->stop("z3950");
