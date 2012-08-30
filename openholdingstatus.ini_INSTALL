@@ -12,8 +12,8 @@ wsdl = openholdingstatus.wsdl
 
 ; soapActions and their corresponding request structure
 ; Can be found in the wsdl but is stated here for convenience
-soapAction[holdingsService] = holdingsRequest
-soapAction[localisation] = localisationRequest
+soapAction[holdings] = holdingsRequest
+soapAction[localisations] = localisationsRequest
 
 ; prefixes and namespaces
 xmlns[] = http://oss.dbc.dk/ns/openholdingstatus
@@ -66,10 +66,6 @@ ols_get_holdings = http://some.server.dk:9080/holdings-service/getAllHoldings?re
 
 
 [rest]
-soap_header = <?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?><SOAP-ENV:Envelope xmlns:SOAP-ENV=&quot;http://schemas.xmlsoap.org/soap/envelope/&quot; xmlns=&quot;http://oss.dbc.dk/ns/openholdingstatus&quot;><SOAP-ENV:Body>
-
-soap_footer = </SOAP-ENV:Body></SOAP-ENV:Envelope>
-
 ; REST parameters for SOAPactions
 ;
 ; use xml.path.to.par notation to solve name-conflicts
@@ -86,19 +82,20 @@ soap_footer = </SOAP-ENV:Body></SOAP-ENV:Envelope>
 ; </thisSoapAction>
 ; from url: action=thisSoapAction&some.number=nn&another.number=mm
 ;
-action[holdingsService][lookupRecord][] = responderId
-action[holdingsService][lookupRecord][] = bibliographicRecordId
-action[holdingsService][lookupRecord][] = bibliographicRecordAgencyId
-action[holdingsService][] = callback
-action[holdingsService][] = outputType
+action[holdings][lookupRecord][] = responderId
+action[holdings][lookupRecord][] = bibliographicRecordId
+action[holdings][lookupRecord][] = bibliographicRecordAgencyId
+action[holdings][] = callback
+action[holdings][] = outputType
 
-action[localisation][] = agencyId
-action[localisation][] = pid
-action[localisation][] = callback
-action[localisation][] = outputType
+action[localisations][] = agencyId
+action[localisations][] = pid
+action[localisations][] = mergePids
+action[localisations][] = callback
+action[localisations][] = outputType
 
 
 [howru]
-;test[] = holdingsService&responderId=DK-790900&bibliographicRecordId=12343&bibliographicRecordAgencyId=DK-710100
+;test[] = holdings&responderId=DK-790900&bibliographicRecordId=12343&bibliographicRecordAgencyId=DK-710100
 ;preg_match[] = willLend
 ;error[] = ERROR checking for holdings

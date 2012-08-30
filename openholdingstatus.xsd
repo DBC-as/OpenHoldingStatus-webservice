@@ -46,6 +46,7 @@ You should have received a copy of the GNU Affero General Public License along w
 				<xs:element ref="hs:authentication" minOccurs="0"/>
 				<xs:element ref="hs:agencyId"/>
 				<xs:element ref="hs:pid" maxOccurs="unbounded"/>
+				<xs:element ref="hs:mergePids" minOccurs="0"/>
 				<xs:element ref="hs:callback" minOccurs="0"/>
 				<xs:element ref="hs:outputType" minOccurs="0"/>
 			</xs:sequence>
@@ -69,6 +70,7 @@ You should have received a copy of the GNU Affero General Public License along w
 				<xs:element ref="hs:agencyId"/>
 				<xs:element ref="hs:note" minOccurs="0"/>
 				<xs:element ref="hs:codes" minOccurs="0"/>
+				<xs:element ref="hs:callNumber" minOccurs="0"/>
 			</xs:sequence>
 		</xs:complexType>
 	</xs:element>
@@ -104,6 +106,7 @@ You should have received a copy of the GNU Affero General Public License along w
 			<xs:documentation xml:lang="en">If outputType=json.</xs:documentation>
 		</xs:annotation>
 	</xs:element>
+	<xs:element name="callNumber" type="xs:string"/>
 	<xs:element name="codes" type="xs:string"/>
 	<xs:element name="error">
 		<xs:complexType>
@@ -127,6 +130,11 @@ You should have received a copy of the GNU Affero General Public License along w
 			<xs:documentation xml:lang="en">Identifier of the group (most often a library number) the user belongs to (for authentication purposes)</xs:documentation>
 		</xs:annotation>
 	</xs:element>
+	<xs:element name="mergePids" type="xs:boolean">
+		<xs:annotation>
+			<xs:documentation xml:lang="en">Merge lists of agencies across pids</xs:documentation>
+		</xs:annotation>
+	</xs:element>
 	<xs:element name="note" type="xs:string">
 		<xs:annotation>
 			<xs:documentation xml:lang="en">Note from local library. check_local_library is returned when a serial or multivolume record is found</xs:documentation>
@@ -148,7 +156,7 @@ You should have received a copy of the GNU Affero General Public License along w
 		</xs:annotation>
 		<xs:complexType>
 			<xs:sequence>
-				<xs:element ref="hs:pid"/>
+				<xs:element ref="hs:pid" minOccurs="1" maxOccurs="unbounded"/>
 				<xs:element ref="hs:agency" minOccurs="0" maxOccurs="unbounded"/>
 			</xs:sequence>
 		</xs:complexType>
@@ -165,8 +173,13 @@ You should have received a copy of the GNU Affero General Public License along w
 		<xs:complexType>
 			<xs:sequence>
 				<xs:element ref="hs:responderId" minOccurs="0"/>
-				<xs:element ref="hs:bibliographicRecordId"/>
-				<xs:element ref="hs:bibliographicRecordAgencyId"/>
+			    <xs:choice>
+			        <xs:sequence>
+				        <xs:element ref="hs:bibliographicRecordId"/>
+				        <xs:element ref="hs:bibliographicRecordAgencyId"/>
+			        </xs:sequence>
+				    <xs:element ref="hs:pid"/>
+			    </xs:choice>
 			</xs:sequence>
 		</xs:complexType>
 	</xs:element>
@@ -190,8 +203,13 @@ You should have received a copy of the GNU Affero General Public License along w
 				<xs:element ref="hs:note"/>
 				<xs:element ref="hs:willLend"/>
 				<xs:element ref="hs:expectedDelivery" minOccurs="0"/>
-				<xs:element ref="hs:bibliographicRecordId"/>
-				<xs:element ref="hs:bibliographicRecordAgencyId"/>
+			    <xs:choice>
+			        <xs:sequence>
+				        <xs:element ref="hs:bibliographicRecordId"/>
+				        <xs:element ref="hs:bibliographicRecordAgencyId"/>
+			        </xs:sequence>
+				    <xs:element ref="hs:pid"/>
+			    </xs:choice>
 				<xs:element ref="hs:responderId"/>
 			</xs:sequence>
 		</xs:complexType>
@@ -217,8 +235,10 @@ You should have received a copy of the GNU Affero General Public License along w
 			<xs:enumeration value="error_in_request"/>
 			<xs:enumeration value="service_not_supported_by_library"/>
 			<xs:enumeration value="cannot_parse_library_answer"/>
+			<xs:enumeration value="cannot_parse_request_order"/>
 			<xs:enumeration value="item_not_found"/>
 			<xs:enumeration value="error_searching_library"/>
+			<xs:enumeration value="error_fetching_request_order"/>
 			<xs:enumeration value="no_holding_return_from_library"/>
 			<xs:enumeration value="no_holdings_specified_by_library"/>
 			<xs:enumeration value="authentication_error"/>

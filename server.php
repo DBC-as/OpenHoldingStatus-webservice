@@ -20,9 +20,9 @@
 */
 
 
-require_once("OLS_class_lib/webServiceServer_class.php");
-require_once("OLS_class_lib/oci_class.php");
-require_once("OLS_class_lib/z3950_class.php");
+require_once('OLS_class_lib/webServiceServer_class.php');
+require_once('OLS_class_lib/oci_class.php');
+require_once('OLS_class_lib/z3950_class.php');
 
 class openHoldings extends webServiceServer {
  
@@ -32,6 +32,7 @@ class openHoldings extends webServiceServer {
   * request:
   * - agencyId: Identifier of agency
   * - pid: Identifier of Open Search object
+  * - mergePids: merge localisations for all pids
   * response:
   * - localisations
   * - - pid: Identifier of Open Search object
@@ -44,73 +45,132 @@ class openHoldings extends webServiceServer {
   * - - errorMessage: 
   */
   public function localisations($param) {
+    static $dom;
     $lr = &$ret->localisationsResponse->_value;
-    if (!$this->aaa->has_right("openholdingstatus", 500)) {
-      $lr->responderId->_value = $param->agencyId->_value;
-      $lr->errorMessage->_value = "authentication_error";
+    if (!$this->aaa->has_right('openholdingstatus', 500)) {
+      $lr->error->_value->responderId->_value = $param->agencyId->_value;
+      $lr->error->_value->errorMessage->_value = 'authentication_error';
+      return $ret;
     }
-    else {
-      is_array($param->pid) ? $pids = $param->pid : $pids[] = $param->pid;
-      $curl = new curl();
-      $curl->set_option(CURLOPT_TIMEOUT, 30);
+
+    $dom = new DomDocument();
+    $dom->preserveWhiteSpace = false;
+    is_array($param->pid) ? $pids = $param->pid : $pids[] = $param->pid;
+    $curl = new curl();
+    $curl->set_option(CURLOPT_TIMEOUT, 30);
+    $sort_n_merge = ($this->xs_boolean($param->mergePids->_value) && count($pids) > 1);
+    if ($sort_n_merge) {
+      $url = sprintf($this->config->get_value('agency_request_order','setup'), 
+                     $this->strip_agency($param->agencyId->_value));
+      $res = $curl->get($url);
+      $curl_status = $curl->get_status();
+      if ($curl_status['http_code'] == 200) {
+        if ($dom->loadXML($res)) {
+          foreach ($dom->getElementsByTagName('agencyId') as $aid)
+            $r_order[$aid->nodeValue] = count($r_order);
+        }
+        else {
+          $error = 'cannot_parse_request_order';
+        }
+      }
+      else {
+        $error = 'error_fetching_request_order';
+        verbose::log(ERROR, 'OpenHoldings:: fetch request order http code: ' . $curl_status['http_code'] .
+                            ' error: "' . $curl_status['error'] .
+                            '" for: ' . $curl_status['url']);
+      }
+    }
+
+    if ($error) {
+      $lr->error->_value->responderId->_value = $param->agencyId->_value;
+      $lr->error->_value->errorMessage->_value = $error;
+      return $ret;
+    }
+
 // if more than one pid, this could be parallelized
-      foreach ($pids as $pid) {
-        $url = sprintf($this->config->get_value("ols_get_holdings","setup"), 
-                       $this->strip_agency($param->agencyId->_value), 
-                       urlencode($pid->_value));
-        $res = $curl->get($url);
-        $curl_status = $curl->get_status();
-        if ($curl_status['http_code'] == 200) {
-          static $dom;
-          if (empty($dom)) {
-            $dom = new DomDocument();
-            $dom->preserveWhiteSpace = false;
-          }
-          if ($dom->loadXML($res)) {
+    foreach ($pids as $pid) {
+      $url = sprintf($this->config->get_value('ols_get_holdings','setup'), 
+                     $this->strip_agency($param->agencyId->_value), 
+                     urlencode($pid->_value));
+      $res = $curl->get($url);
+      $curl_status = $curl->get_status();
+      if ($curl_status['http_code'] == 200) {
+        if ($dom->loadXML($res)) {
 // <holding fedoraPid="870970-basis:28542941">
 //   <agencyId>715700</agencyId>
 //   <note></note>
 //   <codes></codes>
 // </holding>
-            if ($holdings = $dom->getElementsByTagName('holding')) {
-              $one_pid->pid->_value = $pid->_value;
-              foreach ($holdings as $holding) {
-                foreach ($holding->childNodes as $node) {
-                  $hold[$node->localName] = $node->nodeValue;
-                }
-                $agency->localisationPid ->_value = $holding->getAttribute('fedoraPid');
-                $agency->agencyId->_value = $hold['agencyId'];
-                if ($hold['note']) $agency->note->_value = $hold['note'];
-                if ($hold['codes']) $agency->codes->_value = $hold['codes'];
-                $one_pid->agency[]->_value = $agency;
-                unset($agency);
+          if ($holdings = $dom->getElementsByTagName('holding')) {
+            foreach ($holdings as $holding) {
+              foreach ($holding->childNodes as $node) {
+                $hold[$node->localName] = $node->nodeValue;
               }
-              $lr->localisations[]->_value = $one_pid;
-              unset($one_pid);
+              $hold['fedoraPid'] = $holding->getAttribute('fedoraPid');
+              if ($sort_n_merge) {
+                if (!isset($r_order[ $hold['agencyId'] ]))
+                  $r_order[ $hold['agencyId'] ] = count($r_order) + 1000;
+                $hold['sort'] = sprintf('%06s', $r_order[ $hold['agencyId'] ]);
+              }
+              $pid_hold[] = $hold;
+              unset($hold);
             }
-          }
-          else {
-            $error = 'cannot_parse_library_answer';
+            if ($sort_n_merge) {
+              $h_arr[0]['pids'][] = $pid->_value;
+              if (empty($h_arr[0]['holds']))
+                $h_arr[0]['holds'] = array();
+              $h_arr[0]['holds'] = array_merge($h_arr[0]['holds'], $pid_hold);
+            }
+            else {
+              $h_arr[] = array('pids' => array($pid->_value), 'holds' => $pid_hold);
+            }
+            unset($pid_hold);
           }
         }
         else {
-          $error = 'no_holding_return_from_library';
-          verbose::log(ERROR, 'OpenHoldings:: http code: ' . $curl_status['http_code'] .
-                              ' error: "' . $curl_status['error'] .
-                              '" for: ' . $curl_status['url']);
-        }
-        if ($error) {
-          $err->pid->_value = $pid->_value;
-          $err->responderId->_value = $param->agencyId->_value;
-          $err->errorMessage->_value = $error;
-          $lr->error[]->_value = $err;
-          unset($err);
-          unset($error);
+          $error = 'cannot_parse_library_answer';
         }
       }
+      else {
+        $error = 'no_holding_return_from_library';
+        verbose::log(ERROR, 'OpenHoldings:: http code: ' . $curl_status['http_code'] .
+                            ' error: "' . $curl_status['error'] .
+                            '" for: ' . $curl_status['url']);
+      }
+      if ($error) {
+        $err->pid->_value = $pid->_value;
+        $err->responderId->_value = $param->agencyId->_value;
+        $err->errorMessage->_value = $error;
+        $lr->error[]->_value = $err;
+        unset($err);
+        unset($error);
+      }
     }
+
+    if ($sort_n_merge) {
+      usort($h_arr[0]['holds'], array($this, 'compare'));
+    }
+
+//print_r($h_arr); die();
+    foreach ($h_arr as $holds) {
+      foreach ($holds['pids'] as $pid)
+        $one_pid->pid[]->_value = $pid;
+      foreach ($holds['holds'] as $hold) {
+        $agency->localisationPid ->_value = $hold['fedoraPid'];
+        $agency->agencyId->_value = $hold['agencyId'];
+        if ($hold['note']) $agency->note->_value = $hold['note'];
+        if ($hold['codes']) $agency->codes->_value = $hold['codes'];
+        if ($hold['callNumber']) $agency->callNumber->_value = $hold['callNumber'];
+        $one_pid->agency[]->_value = $agency;
+        unset($agency);
+      }
+      $lr->localisations[]->_value = $one_pid;
+      unset($one_pid);
+    }
+
     return $ret;
   }
+
 
  /*
   * request:
@@ -141,8 +201,8 @@ class openHoldings extends webServiceServer {
   */
   public function holdings($param) {
     $hr = &$ret->holdingsResponse->_value;
-    if (!$this->aaa->has_right("openholdingstatus", 500))
-      $auth_error = "authentication_error";
+    if (!$this->aaa->has_right('openholdingstatus', 500))
+      $auth_error = 'authentication_error';
     if (isset($param->lookupRecord)) {
       // force to array
       if (!is_array($param->lookupRecord)) {
@@ -198,68 +258,68 @@ class openHoldings extends webServiceServer {
     static $z3950;
     if ($zurl = $this->find_z_url($holding->responderId->_value)) {
       if (empty($z3950)) $z3950 = new z3950();
-      list($target, $database) = explode("/", $zurl);
+      list($target, $database) = explode('/', $zurl);
       $z3950->set_target($target);
       $z3950->set_database($database);
-      $z3950->set_syntax("xml");
-      $z3950->set_element("B3");
-      $z3950->set_schema("1.2.840.10003.13.7.2");
+      $z3950->set_syntax('xml');
+      $z3950->set_element('B3');
+      $z3950->set_schema('1.2.840.10003.13.7.2');
       $z3950->set_start(1);
       $z3950->set_step(1);
       if (isset($holding->pid)) {
         list($bibpart, $recid) = explode(':', $holding->pid->_value);
         //list($holding->bibliographicRecordAgencyId->_value, $source) = explode('-', $bibpart);
-        $z3950->set_rpn("@attr 4=103 @attr BIB1 1=12 " . $recid);
+        $z3950->set_rpn('@attr 4=103 @attr BIB1 1=12 ' . $recid);
       } else {
-        $z3950->set_rpn("@attr 4=103 @attr BIB1 1=12 " . $holding->bibliographicRecordId->_value);
+        $z3950->set_rpn('@attr 4=103 @attr BIB1 1=12 ' . $holding->bibliographicRecordId->_value);
       }
-      $this->watch->start("z3950");
+      $this->watch->start('z3950');
       $hits = $z3950->z3950_search(5);
-      $this->watch->stop("z3950");
+      $this->watch->stop('z3950');
       if ($z3950->get_error()) {
-        verbose::log(ERROR, "OpenHoldings:: " . $zurl . " Z3950 error: " . $z3950->get_error_string());
-        return "error_searching_library";
+        verbose::log(ERROR, 'OpenHoldings:: ' . $zurl . ' Z3950 error: ' . $z3950->get_error_string());
+        return 'error_searching_library';
       }
       if (!$hits)
-        return "item_not_found";
+        return 'item_not_found';
       $record = $z3950->z3950_record(1);
       if (empty($record))
-        return "no_holding_return_from_library";
+        return 'no_holding_return_from_library';
       if ($status = $this->parse_holding($record))
         return $this->parse_status($status);
       else
-        return "cannot_parse_library_answer";
+        return 'cannot_parse_library_answer';
     } else
-      return "service_not_supported_by_library";
+      return 'service_not_supported_by_library';
   }
 
   /** \brief Parse status for availability
    *
    */
   private function parse_status($status) {
-    if (count($status) == 1 && $status[0]["policy"]) {
+    if (count($status) == 1 && $status[0]['policy']) {
       $s = &$status[0];
-      $ret->localHoldingsId->_value = $s["id"];
-      if ($s["note"])
-        $ret->note->_value = $s["note"];
-      $h_date = substr($s["date"],0,10);
-      if ($s["policy"] == 1) {
-        $ret->willLend->_value = "true";
-        if ($h_date >= date("Y-m-d"))
+      $ret->localHoldingsId->_value = $s['id'];
+      if ($s['note'])
+        $ret->note->_value = $s['note'];
+      $h_date = substr($s['date'],0,10);
+      if ($s['policy'] == 1) {
+        $ret->willLend->_value = 'true';
+        if ($h_date >= date('Y-m-d'))
           $ret->expectedDelivery->_value = $h_date;
-      } elseif (($s["policy"] == 2))
-          $ret->willLend->_value = "false";
+      } elseif (($s['policy'] == 2))
+          $ret->willLend->_value = 'false';
     } elseif (count($status) > 1) {
-      $ret->willLend->_value = "true";
+      $ret->willLend->_value = 'true';
       $pol = 0;
       foreach ($status as $s)
-        if ($s["policy"] <> 1) {
-          $ret->willLend->_value = "false";
+        if ($s['policy'] <> 1) {
+          $ret->willLend->_value = 'false';
           break ;
         }
-      $ret->note->_value = "check_local_library";
+      $ret->note->_value = 'check_local_library';
     } else 
-      $ret = "no_holdings_specified_by_library";
+      $ret = 'no_holdings_specified_by_library';
 
     return $ret;
   }
@@ -274,36 +334,36 @@ class openHoldings extends webServiceServer {
       $dom->preserveWhiteSpace = false;
     }
     if ($dom->loadXML($holding)) {
-      //echo str_replace("?", "", $holding);
-      foreach ($dom->getElementsByTagName("bibView-11") as $item) {
+      //echo str_replace('?', '', $holding);
+      foreach ($dom->getElementsByTagName('bibView-11') as $item) {
         $h = array();
         foreach ($item->attributes as $key => $attr)
-          if ($key == "targetBibPartId-40")
-            $h["id"] = $attr->nodeValue;
-        foreach ($item->getElementsByTagName("bibPartLendingInfo-116") as $info) {
+          if ($key == 'targetBibPartId-40')
+            $h['id'] = $attr->nodeValue;
+        foreach ($item->getElementsByTagName('bibPartLendingInfo-116') as $info) {
           foreach ($info->attributes as $key => $attr)
             switch ($key) {
-              case "servicePolicy-109" : 
-                $h["policy"] = $attr->nodeValue;
+              case 'servicePolicy-109' : 
+                $h['policy'] = $attr->nodeValue;
                 break;
-              case "servicefee-110" : 
-                $h["fee"] = "fee"; // $attr->nodeValue; 2do in seperate tag??
+              case 'servicefee-110' : 
+                $h['fee'] = 'fee'; // $attr->nodeValue; 2do in seperate tag??
                 break;
-              case "expectedDispatchDate-111" : 
-                $h["date"] = $attr->nodeValue;
+              case 'expectedDispatchDate-111' : 
+                $h['date'] = $attr->nodeValue;
                 break;
-              case "serviceNotes-112" : 
-                $h["note"] = $attr->nodeValue;
+              case 'serviceNotes-112' : 
+                $h['note'] = $attr->nodeValue;
                 break;
             }
         }
-        //foreach ($item->getElementsByTagName("bibPartEnumeration-45") as $info) { }
-        //foreach ($item->getElementsByTagName("bibPartChronology-46") as $info) { }
+        //foreach ($item->getElementsByTagName('bibPartEnumeration-45') as $info) { }
+        //foreach ($item->getElementsByTagName('bibPartChronology-46') as $info) { }
 
         $hold[] = $h;
       }
       if (empty($hold))
-        return array(array("note" => "No holding"));
+        return array(array('note' => 'No holding'));
       else
         return $hold;
     } else
@@ -314,19 +374,19 @@ class openHoldings extends webServiceServer {
     static $oci;
     if (empty($this->url_itemorder_bestil[$lib])) {
       if (empty($oci)) {
-        $oci = new Oci($this->config->get_value("vip_credentials","setup"));
-        $oci->set_charset("UTF8");
+        $oci = new Oci($this->config->get_value('vip_credentials','setup'));
+        $oci->set_charset('UTF8');
         $oci->connect();
         if ($err = $oci->get_error_string()) {
-          verbose::log(FATAL, "OpenHoldings:: OCI connect error: " . $err);
+          verbose::log(FATAL, 'OpenHoldings:: OCI connect error: ' . $err);
           return FALSE;
         }
       }
-      list($country, $bibno) = explode("-", $lib);
-      $oci->bind("bind_bib_nr", $bibno);
-      $oci->set_query("SELECT url_itemorder_bestil FROM vip_danbib WHERE bib_nr = :bind_bib_nr");
+      list($country, $bibno) = explode('-', $lib);
+      $oci->bind('bind_bib_nr', $bibno);
+      $oci->set_query('SELECT url_itemorder_bestil FROM vip_danbib WHERE bib_nr = :bind_bib_nr');
       $vd_row = $oci->fetch_into_assoc();
-      $this->url_itemorder_bestil[$lib] = $vd_row["URL_ITEMORDER_BESTIL"];
+      $this->url_itemorder_bestil[$lib] = $vd_row['URL_ITEMORDER_BESTIL'];
     }
     return $this->url_itemorder_bestil[$lib];
   }
@@ -336,6 +396,20 @@ class openHoldings extends webServiceServer {
    */
   private function strip_agency($id) {
     return preg_replace('/\D/', '', $id);
+  }
+
+  /** \brief
+   *  return true if xs:boolean is so
+   */
+  private function xs_boolean($str) {
+    return (strtolower($str) == 'true' || $str == 1);
+  }
+
+  /** \brief
+   *  return true if xs:boolean is so
+   */
+  private function compare($a, $b) {
+    return $a['sort'] > $b['sort'];
   }
 
 }
