@@ -152,22 +152,24 @@ class openHoldings extends webServiceServer {
     }
 
 //print_r($h_arr); die();
-    foreach ($h_arr as $holds) {
-      foreach ($holds['pids'] as $pid)
-        $one_pid->pid[]->_value = $pid;
-      if (isset($holds['holds'])) {
-        foreach ($holds['holds'] as $hold) {
-          $agency->localisationPid ->_value = $hold['fedoraPid'];
-          $agency->agencyId->_value = $hold['agencyId'];
-          if ($hold['note']) $agency->note->_value = $hold['note'];
-          if ($hold['codes']) $agency->codes->_value = $hold['codes'];
-          if ($hold['callNumber']) $agency->callNumber->_value = $hold['callNumber'];
-          $one_pid->agency[]->_value = $agency;
-          unset($agency);
+    if (is_array($h_arr)) {
+      foreach ($h_arr as $holds) {
+        foreach ($holds['pids'] as $pid)
+          $one_pid->pid[]->_value = $pid;
+        if (isset($holds['holds'])) {
+          foreach ($holds['holds'] as $hold) {
+            $agency->localisationPid ->_value = $hold['fedoraPid'];
+            $agency->agencyId->_value = $hold['agencyId'];
+            if ($hold['note']) $agency->note->_value = $hold['note'];
+            if ($hold['codes']) $agency->codes->_value = $hold['codes'];
+            if ($hold['callNumber']) $agency->callNumber->_value = $hold['callNumber'];
+            $one_pid->agency[]->_value = $agency;
+            unset($agency);
+          }
         }
+        $lr->localisations[]->_value = $one_pid;
+        unset($one_pid);
       }
-      $lr->localisations[]->_value = $one_pid;
-      unset($one_pid);
     }
 
     return $ret;
