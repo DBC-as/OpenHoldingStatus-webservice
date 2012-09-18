@@ -36,10 +36,14 @@ logfile = /tmp/openholdingstatus.log
 ;   OCI     - oracle
 verbose = WARNING+ERROR+FATAL+STAT+TIMER+TRACE+DEBUG+Z3950+OCI
 
-vip_credentials = user/password@my.oracler.server
-
-; url to holdings-/localization-service 
+; url to holdings-/localization-service from openHolding
 ols_get_holdings = http://some.server.dk:9080/holdings-service/getAllHoldings?requestOrderBib=%s&pid=%s
+
+; url to get request_order sequence from openAgency
+agency_request_order = http://some_open_agency.server.dk/?action=requestOrder&agencyId=%s
+; url to get server information from openAgency
+agency_server_information = http://some_open_agency.server.dk/?action=service&service=serverInformation&agencyId=%s
+
 
 [aaa]
 ; aaa Authentication, Access control and Accounting

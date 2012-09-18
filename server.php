@@ -27,6 +27,16 @@ require_once('OLS_class_lib/z3950_class.php');
 class openHoldings extends webServiceServer {
  
   private $url_itemorder_bestil = array();
+  protected $curl;
+  protected $dom;
+
+  public function __construct() {
+    webServiceServer::__construct('openholdingstatus.ini');
+    $this->curl = new curl();
+    $this->curl->set_option(CURLOPT_TIMEOUT, 30);
+    $this->dom = new DomDocument();
+    $this->dom->preserveWhiteSpace = false;
+  }
 
  /*
   * request:
@@ -45,7 +55,6 @@ class openHoldings extends webServiceServer {
   * - - errorMessage: 
   */
   public function localisations($param) {
-    static $dom;
     $lr = &$ret->localisationsResponse->_value;
     if (!$this->aaa->has_right('openholdingstatus', 500)) {
       $lr->error->_value->responderId->_value = $param->agencyId->_value;
@@ -53,20 +62,16 @@ class openHoldings extends webServiceServer {
       return $ret;
     }
 
-    $dom = new DomDocument();
-    $dom->preserveWhiteSpace = false;
     is_array($param->pid) ? $pids = $param->pid : $pids[] = $param->pid;
-    $curl = new curl();
-    $curl->set_option(CURLOPT_TIMEOUT, 30);
     $sort_n_merge = ($this->xs_boolean($param->mergePids->_value) && count($pids) > 1);
     if ($sort_n_merge) {
       $url = sprintf($this->config->get_value('agency_request_order','setup'), 
                      $this->strip_agency($param->agencyId->_value));
-      $res = $curl->get($url);
-      $curl_status = $curl->get_status();
+      $res = $this->curl->get($url);
+      $curl_status = $this->curl->get_status();
       if ($curl_status['http_code'] == 200) {
-        if ($dom->loadXML($res)) {
-          foreach ($dom->getElementsByTagName('agencyId') as $aid)
+        if ($this->dom->loadXML($res)) {
+          foreach ($this->dom->getElementsByTagName('agencyId') as $aid)
             $r_order[$aid->nodeValue] = count($r_order);
         }
         else {
@@ -92,16 +97,16 @@ class openHoldings extends webServiceServer {
       $url = sprintf($this->config->get_value('ols_get_holdings','setup'), 
                      $this->strip_agency($param->agencyId->_value), 
                      urlencode($pid->_value));
-      $res = $curl->get($url);
-      $curl_status = $curl->get_status();
+      $res = $this->curl->get($url);
+      $curl_status = $this->curl->get_status();
       if ($curl_status['http_code'] == 200) {
-        if ($dom->loadXML($res)) {
+        if ($this->dom->loadXML($res)) {
 // <holding fedoraPid="870970-basis:28542941">
 //   <agencyId>715700</agencyId>
 //   <note></note>
 //   <codes></codes>
 // </holding>
-          if ($holdings = $dom->getElementsByTagName('holding')) {
+          if ($holdings = $this->dom->getElementsByTagName('holding')) {
             foreach ($holdings as $holding) {
               foreach ($holding->childNodes as $node) {
                 $hold[$node->localName] = $node->nodeValue;
@@ -332,14 +337,9 @@ class openHoldings extends webServiceServer {
    *
    */
   private function parse_holding($holding) {
-    static $dom;
-    if (empty($dom)) {
-      $dom = new DomDocument();
-      $dom->preserveWhiteSpace = false;
-    }
-    if ($dom->loadXML($holding)) {
+    if ($this->dom->loadXML($holding)) {
       //echo str_replace('?', '', $holding);
-      foreach ($dom->getElementsByTagName('bibView-11') as $item) {
+      foreach ($this->dom->getElementsByTagName('bibView-11') as $item) {
         $h = array();
         foreach ($item->attributes as $key => $attr)
           if ($key == 'targetBibPartId-40')
@@ -375,22 +375,26 @@ class openHoldings extends webServiceServer {
   }
 
   private function find_z_url($lib) {
-    static $oci;
     if (empty($this->url_itemorder_bestil[$lib])) {
-      if (empty($oci)) {
-        $oci = new Oci($this->config->get_value('vip_credentials','setup'));
-        $oci->set_charset('UTF8');
-        $oci->connect();
-        if ($err = $oci->get_error_string()) {
-          verbose::log(FATAL, 'OpenHoldings:: OCI connect error: ' . $err);
+      $url = sprintf($this->config->get_value('agency_server_information','setup'), 
+                     $this->strip_agency($lib));
+      $res = $this->curl->get($url);
+      $curl_status = $this->curl->get_status();
+      if ($curl_status['http_code'] == 200) {
+        if ($this->dom->loadXML($res)) {
+          $this->url_itemorder_bestil[$lib] = $this->dom->getElementsByTagName('address')->item(0)->nodeValue;
+        }
+        else {
+          verbose::log(ERROR, 'OpenHoldings:: Cannot parse serverInformation url ' . $url);
           return FALSE;
         }
       }
-      list($country, $bibno) = explode('-', $lib);
-      $oci->bind('bind_bib_nr', $bibno);
-      $oci->set_query('SELECT url_itemorder_bestil FROM vip_danbib WHERE bib_nr = :bind_bib_nr');
-      $vd_row = $oci->fetch_into_assoc();
-      $this->url_itemorder_bestil[$lib] = $vd_row['URL_ITEMORDER_BESTIL'];
+      else {
+        verbose::log(ERROR, 'OpenHoldings:: fetch serverInformation http code: ' . $curl_status['http_code'] .
+                            ' error: "' . $curl_status['error'] .
+                            '" for: ' . $curl_status['url']);
+        return FALSE;
+      }
     }
     return $this->url_itemorder_bestil[$lib];
   }
@@ -422,7 +426,7 @@ class openHoldings extends webServiceServer {
  * MAIN
  */
 
-$ws=new openHoldings('openholdingstatus.ini');
+$ws=new openHoldings();
 $ws->handle_request();
 
 ?>
