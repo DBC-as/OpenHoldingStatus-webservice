@@ -122,9 +122,12 @@ class openHoldings extends webServiceServer {
             }
             if ($sort_n_merge) {
               $h_arr[0]['pids'][] = $pid->_value;
-              if (empty($h_arr[0]['holds']))
+              if (empty($h_arr[0]['holds'])) {
                 $h_arr[0]['holds'] = array();
-              $h_arr[0]['holds'] = array_merge($h_arr[0]['holds'], $pid_hold);
+              }
+              if (is_array($pid_hold)) {
+                $h_arr[0]['holds'] = array_merge($h_arr[0]['holds'], $pid_hold);
+              }
             }
             else {
               $h_arr[] = array('pids' => array($pid->_value), 'holds' => $pid_hold);
