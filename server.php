@@ -56,7 +56,7 @@ class openHoldings extends webServiceServer {
   */
   public function localisations($param) {
     $lr = &$ret->localisationsResponse->_value;
-    if (!$this->aaa->has_right('openholdingstatus', 500)) {
+    if (!$this->aaa->has_right('netpunkt.dk', 500)) {
       $lr->error->_value->responderId->_value = $param->agencyId->_value;
       $lr->error->_value->errorMessage->_value = 'authentication_error';
       return $ret;
@@ -213,7 +213,7 @@ class openHoldings extends webServiceServer {
   */
   public function holdings($param) {
     $hr = &$ret->holdingsResponse->_value;
-    if (!$this->aaa->has_right('openholdingstatus', 500))
+    if (!$this->aaa->has_right('netpunkt.dk', 500))
       $auth_error = 'authentication_error';
     if (isset($param->lookupRecord)) {
       // force to array

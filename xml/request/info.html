@@ -2,16 +2,20 @@ Parameters:
 <ul>
   <li>holdingsRequest</li>
   <ul>
+    <li>authentication:</li> login triple in subtags: groupIdAut, passwordAut, userIdAut
     <li>responderId:</li> holding-library code, like DK-790900
     <li>bibliographicRecordId:</li> Record id, ie. faust, isbn, ...
     <li>bibliographicRecordAgencyId:</li> Record owner (currently not used)
+    <li>pid:</li> Identifier of Open Search-object
     <li>outputType:</li> json, php, xml (default soap)
     <li>callback:</li> for json-callback
   </ul>
   <li>localisationRequest</li>
   <ul>
+    <li>authentication:</li> login triple in subtags: groupIdAut, passwordAut, userIdAut
     <li>agencyId:</li> Identifier of an agency
     <li>pid:</li> Identifier of Open Search-object
+    <li>mergePid:</li> Merge lists of agencies across pids
     <li>outputType:</li> json, php, xml (default soap)
     <li>callback:</li> for json-callback
   </ul>
