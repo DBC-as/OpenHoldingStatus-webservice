@@ -155,7 +155,7 @@ class openHoldings extends webServiceServer {
       }
     }
 
-    if ($sort_n_merge) {
+    if ($sort_n_merge && is_array($h_arr)) {
       usort($h_arr[0]['holds'], array($this, 'compare'));
     }
 
