@@ -171,6 +171,7 @@ class openHoldings extends webServiceServer {
             if ($hold['note']) $agency->note->_value = $hold['note'];
             if ($hold['codes']) $agency->codes->_value = $hold['codes'];
             if ($hold['callNumber']) $agency->callNumber->_value = $hold['callNumber'];
+            if ($hold['localIdentifier']) $agency->localIdentifier->_value = $hold['localIdentifier'];
             $one_pid->agency[]->_value = $agency;
             unset($agency);
           }

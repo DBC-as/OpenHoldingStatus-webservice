@@ -71,6 +71,7 @@ You should have received a copy of the GNU Affero General Public License along w
 				<xs:element ref="hs:note" minOccurs="0"/>
 				<xs:element ref="hs:codes" minOccurs="0"/>
 				<xs:element ref="hs:callNumber" minOccurs="0"/>
+				<xs:element ref="hs:localIdentifier" minOccurs="0"/>
 			</xs:sequence>
 		</xs:complexType>
 	</xs:element>
@@ -148,6 +149,11 @@ You should have received a copy of the GNU Affero General Public License along w
 	<xs:element name="localHoldingsId" type="xs:string">
 		<xs:annotation>
 			<xs:documentation xml:lang="en">The Id used for direct ordering of the material in the local library system.</xs:documentation>
+		</xs:annotation>
+	</xs:element>
+	<xs:element name="localIdentifier" type="xs:string">
+		<xs:annotation>
+			<xs:documentation xml:lang="en">The libraries own identification.</xs:documentation>
 		</xs:annotation>
 	</xs:element>
 	<xs:element name="localisations">
