@@ -163,7 +163,10 @@ You should have received a copy of the GNU Affero General Public License along w
 		<xs:complexType>
 			<xs:sequence>
 				<xs:element ref="hs:pid" minOccurs="1" maxOccurs="unbounded"/>
-				<xs:element ref="hs:agency" minOccurs="0" maxOccurs="unbounded"/>
+			    <xs:choice>
+				    <xs:element ref="hs:agency" minOccurs="0" maxOccurs="unbounded"/>
+				    <xs:element ref="hs:errorMessage"/>
+			    </xs:choice>
 			</xs:sequence>
 		</xs:complexType>
 	</xs:element>

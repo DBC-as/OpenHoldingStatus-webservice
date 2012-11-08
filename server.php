@@ -46,43 +46,45 @@ class openHoldings extends webServiceServer {
   * response:
   * - localisations
   * - - pid: Identifier of Open Search object
+  * - - errorMessage 
+  * - or 
   * - - agencyId: Identifier of agency
   * - - note: Note from local library
   * - - codes: string
+  * - - localIdentifier: string
   * - error
   * - - pid: Identifier of Open Search object
   * - - responderId: librarycode for lookup-library
-  * - - errorMessage: 
+  * - - errorMessage 
   */
   public function localisations($param) {
     $lr = &$ret->localisationsResponse->_value;
     if (!$this->aaa->has_right('netpunkt.dk', 500)) {
-      $lr->error->_value->responderId->_value = $param->agencyId->_value;
-      $lr->error->_value->errorMessage->_value = 'authentication_error';
-      return $ret;
-    }
-
-    is_array($param->pid) ? $pids = $param->pid : $pids[] = $param->pid;
-    $sort_n_merge = ($this->xs_boolean($param->mergePids->_value) && count($pids) > 1);
-    if ($sort_n_merge) {
-      $url = sprintf($this->config->get_value('agency_request_order','setup'), 
-                     $this->strip_agency($param->agencyId->_value));
-      $res = $this->curl->get($url);
-      $curl_status = $this->curl->get_status();
-      if ($curl_status['http_code'] == 200) {
-        if ($this->dom->loadXML($res)) {
-          foreach ($this->dom->getElementsByTagName('agencyId') as $aid)
-            $r_order[$aid->nodeValue] = count($r_order);
+      $error = 'authentication_error';
+    } 
+    else {
+      is_array($param->pid) ? $pids = $param->pid : $pids[] = $param->pid;
+      $sort_n_merge = ($this->xs_boolean($param->mergePids->_value) && count($pids) > 1);
+      if ($sort_n_merge) {
+        $url = sprintf($this->config->get_value('agency_request_order','setup'), 
+                       $this->strip_agency($param->agencyId->_value));
+        $res = $this->curl->get($url);
+        $curl_status = $this->curl->get_status();
+        if ($curl_status['http_code'] == 200) {
+          if ($this->dom->loadXML($res)) {
+            foreach ($this->dom->getElementsByTagName('agencyId') as $aid)
+              $r_order[$aid->nodeValue] = count($r_order);
+          }
+          else {
+            $error = 'cannot_parse_request_order';
+          }
         }
         else {
-          $error = 'cannot_parse_request_order';
+          $error = 'error_fetching_request_order';
+          verbose::log(ERROR, 'OpenHoldings:: fetch request order http code: ' . $curl_status['http_code'] .
+                              ' error: "' . $curl_status['error'] .
+                              '" for: ' . $curl_status['url']);
         }
-      }
-      else {
-        $error = 'error_fetching_request_order';
-        verbose::log(ERROR, 'OpenHoldings:: fetch request order http code: ' . $curl_status['http_code'] .
-                            ' error: "' . $curl_status['error'] .
-                            '" for: ' . $curl_status['url']);
       }
     }
 
@@ -147,9 +149,9 @@ class openHoldings extends webServiceServer {
       }
       if ($error) {
         $err->pid->_value = $pid->_value;
-        $err->responderId->_value = $param->agencyId->_value;
+        //$err->responderId->_value = $param->agencyId->_value;
         $err->errorMessage->_value = $error;
-        $lr->error[]->_value = $err;
+        $lr->localisations[]->_value = $err;
         unset($err);
         unset($error);
       }
