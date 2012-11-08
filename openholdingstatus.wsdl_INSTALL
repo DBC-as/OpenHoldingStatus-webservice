@@ -63,10 +63,10 @@ You should have received a copy of the GNU Affero General Public License along w
 	</wsdl:binding>
 	<wsdl:service name="holdingsServiceService">
 		<wsdl:port binding="hsw:holdingsServiceBinding" name="holdingsServicePortType">
-			<soap:address location="http://openholdingstatus.addi.dk/0.3/"/>
+			<soap:address location="http://openholdingstatus.addi.dk/1.0/"/>
 		</wsdl:port>
 		<wsdl:port binding="hsw:localisationsServiceBinding" name="localisationsServicePortType">
-			<soap:address location="http://openholdingstatus.addi.dk/0.3/"/>
+			<soap:address location="http://openholdingstatus.addi.dk/1.0/"/>
 		</wsdl:port>
 	</wsdl:service>
 </wsdl:definitions>
