@@ -92,12 +92,18 @@ agency_server_information = http://some_open_agency.server.dk/?action=service&se
 ; </thisSoapAction>
 ; from url: action=thisSoapAction&some.number=nn&another.number=mm
 ;
+action[holdings][authentication][] = groupIdAut
+action[holdings][authentication][] = passwordAut
+action[holdings][authentication][] = userIdAut
 action[holdings][lookupRecord][] = responderId
 action[holdings][lookupRecord][] = bibliographicRecordId
 action[holdings][lookupRecord][] = bibliographicRecordAgencyId
 action[holdings][] = callback
 action[holdings][] = outputType
 
+action[localisations][authentication][] = groupIdAut
+action[localisations][authentication][] = passwordAut
+action[localisations][authentication][] = userIdAut
 action[localisations][] = agencyId
 action[localisations][] = pid
 action[localisations][] = mergePids

@@ -148,7 +148,7 @@ class openHoldings extends webServiceServer {
                             '" for: ' . $curl_status['url']);
       }
       if ($error) {
-        $err->pid->_value = $pid->_value;
+        $err->pid[]->_value = $pid->_value;
         //$err->responderId->_value = $param->agencyId->_value;
         $err->errorMessage->_value = $error;
         $lr->localisations[]->_value = $err;
