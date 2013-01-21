@@ -4,5 +4,6 @@
   <ns1:agencyId>DK-870970</ns1:agencyId>
   <ns1:pid>870970-basis:28542941</ns1:pid>
   <ns1:pid>870970-basis:28794932</ns1:pid>
+  <ns1:mergePids>true</ns1:mergePids>
 </ns1:localisationsRequest>
 </SOAP-ENV:Body></SOAP-ENV:Envelope>
