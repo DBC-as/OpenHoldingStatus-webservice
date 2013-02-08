@@ -26,7 +26,6 @@ require_once('OLS_class_lib/z3950_class.php');
 
 class openHoldings extends webServiceServer {
  
-  private $url_itemorder_bestil = array();
   protected $curl;
   protected $dom;
 
@@ -271,11 +270,12 @@ class openHoldings extends webServiceServer {
   */
   private function find_holding($holding) {
     static $z3950;
-    if ($zurl = $this->find_z_url($holding->responderId->_value)) {
+    if ($z_info = $this->find_z_url($holding->responderId->_value)) {
       if (empty($z3950)) $z3950 = new z3950();
-      list($target, $database) = explode('/', $zurl);
+      list($target, $database) = explode('/', $z_info['url'], 2);
       $z3950->set_target($target);
       $z3950->set_database($database);
+      $z3950->set_authentication($z_info['authentication']);
       $z3950->set_syntax('xml');
       $z3950->set_element('B3');
       $z3950->set_schema('1.2.840.10003.13.7.2');
@@ -292,7 +292,7 @@ class openHoldings extends webServiceServer {
       $hits = $z3950->z3950_search(5);
       $this->watch->stop('z3950');
       if ($z3950->get_error()) {
-        verbose::log(ERROR, 'OpenHoldings:: ' . $zurl . ' Z3950 error: ' . $z3950->get_error_string());
+        verbose::log(ERROR, 'OpenHoldings:: ' . $z_info['url'] . ' Z3950 error: ' . $z3950->get_error_string());
         return 'error_searching_library';
       }
       if (!$hits)
@@ -381,14 +381,21 @@ class openHoldings extends webServiceServer {
   }
 
   private function find_z_url($lib) {
-    if (empty($this->url_itemorder_bestil[$lib])) {
+    static $z_infos = array();
+    if (empty($z_infos[$lib])) {
       $url = sprintf($this->config->get_value('agency_server_information','setup'), 
                      $this->strip_agency($lib));
       $res = $this->curl->get($url);
       $curl_status = $this->curl->get_status();
       if ($curl_status['http_code'] == 200) {
         if ($this->dom->loadXML($res)) {
-          $this->url_itemorder_bestil[$lib] = $this->dom->getElementsByTagName('address')->item(0)->nodeValue;
+          $z_infos[$lib]['url'] = $this->dom->getElementsByTagName('address')->item(0)->nodeValue;
+          $auth = $this->dom->getElementsByTagName('userId')->item(0)->nodeValue . '/' .
+                  $this->dom->getElementsByTagName('groupId')->item(0)->nodeValue . '/' .
+                  $this->dom->getElementsByTagName('passWord')->item(0)->nodeValue;
+          if ($auth <> '//') {
+            $z_infos[$lib]['authentication'] = $auth;
+          }
         }
         else {
           verbose::log(ERROR, 'OpenHoldings:: Cannot parse serverInformation url ' . $url);
@@ -402,7 +409,7 @@ class openHoldings extends webServiceServer {
         return FALSE;
       }
     }
-    return $this->url_itemorder_bestil[$lib];
+    return $z_infos[$lib];
   }
 
   /** \brief
