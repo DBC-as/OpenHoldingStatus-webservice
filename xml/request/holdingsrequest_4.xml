@@ -5,12 +5,10 @@
   <ns1:lookupRecord>
     <ns1:responderId>DK-715500</ns1:responderId>
     <ns1:bibliographicRecordId>27942628</ns1:bibliographicRecordId>
-    <ns1:bibliographicRecordAgencyId>DK-870970</ns1:bibliographicRecordAgencyId>
   </ns1:lookupRecord>
   <ns1:lookupRecord>
     <ns1:responderId>DK-710100</ns1:responderId>
     <ns1:bibliographicRecordId>27942628</ns1:bibliographicRecordId>
-    <ns1:bibliographicRecordAgencyId>DK-870970</ns1:bibliographicRecordAgencyId>
   </ns1:lookupRecord>
 </ns1:holdingsRequest>
 </SOAP-ENV:Body>
