@@ -97,11 +97,6 @@ You should have received a copy of the GNU Affero General Public License along w
 			<xs:documentation xml:lang="en">Id of the bibliographic record of the materiale for which holdings are looked up.</xs:documentation>
 		</xs:annotation>
 	</xs:element>
-	<xs:element name="bibliographicRecordAgencyId" type="xs:string">
-		<xs:annotation>
-			<xs:documentation xml:lang="en">Id of the agency owning the bibliographic record (If bibliographicRecordId is a FAUST number, use DK-190101)</xs:documentation>
-		</xs:annotation>
-	</xs:element>
 	<xs:element name="callback" type="xs:string">
 		<xs:annotation>
 			<xs:documentation xml:lang="en">If outputType=json.</xs:documentation>
@@ -114,7 +109,6 @@ You should have received a copy of the GNU Affero General Public License along w
 			<xs:sequence>
 				<xs:element ref="hs:pid" minOccurs="0"/>
 				<xs:element ref="hs:bibliographicRecordId" minOccurs="0"/>
-				<xs:element ref="hs:bibliographicRecordAgencyId" minOccurs="0"/>
 				<xs:element ref="hs:responderId" minOccurs="0"/>
 				<xs:element ref="hs:errorMessage"/>
 			</xs:sequence>
@@ -183,10 +177,7 @@ You should have received a copy of the GNU Affero General Public License along w
 			<xs:sequence>
 				<xs:element ref="hs:responderId" minOccurs="0"/>
 			    <xs:choice>
-			        <xs:sequence>
-				        <xs:element ref="hs:bibliographicRecordId"/>
-				        <xs:element ref="hs:bibliographicRecordAgencyId"/>
-			        </xs:sequence>
+				    <xs:element ref="hs:bibliographicRecordId"/>
 				    <xs:element ref="hs:pid"/>
 			    </xs:choice>
 			</xs:sequence>
@@ -213,10 +204,7 @@ You should have received a copy of the GNU Affero General Public License along w
 				<xs:element ref="hs:willLend"/>
 				<xs:element ref="hs:expectedDelivery" minOccurs="0"/>
 			    <xs:choice>
-			        <xs:sequence>
-				        <xs:element ref="hs:bibliographicRecordId"/>
-				        <xs:element ref="hs:bibliographicRecordAgencyId"/>
-			        </xs:sequence>
+				    <xs:element ref="hs:bibliographicRecordId"/>
 				    <xs:element ref="hs:pid"/>
 			    </xs:choice>
 				<xs:element ref="hs:responderId"/>

@@ -191,9 +191,8 @@ class openHoldings extends webServiceServer {
   * - lookupRecord
   * - - responderId: librarycode for lookup-library
   * - - pid
-  * - or next 2
+  * - or next 
   * - - bibliographicRecordId: requester record id 
-  * - - bibliographicRecordAgencyId: requester record library
   * response:
   * - responder
   * - - localHoldingsId
@@ -201,15 +200,13 @@ class openHoldings extends webServiceServer {
   * - - willLend;
   * - - expectedDelivery;
   * - - pid
-  * - or next 2
+  * - or next
   * - - bibliographicRecordId: requester record id 
-  * - - bibliographicRecordAgencyId: requester record library
   * - - responderId: librarycode for lookup-library
   * - error
   * - - pid
-  * - or next 2
+  * - or next
   * - - bibliographicRecordId: requester record id 
-  * - - bibliographicRecordAgencyId: requester record library
   * - - responderId: librarycode for lookup-library
   * - - errorMessage: 
   */
@@ -230,16 +227,12 @@ class openHoldings extends webServiceServer {
         unset($recid);
         if (is_scalar($fh)) {
           $this->add_recid($err, $holding);
-          //$err->bibliographicRecordId->_value = $holding->_value->bibliographicRecordId->_value;
-          //$err->bibliographicRecordAgencyId->_value = $holding->_value->bibliographicRecordAgencyId->_value;
           $err->responderId->_value = $holding->_value->responderId->_value;
           $err->errorMessage->_value = $fh;
           $hr->error[]->_value = $err;
           unset($err);
         } else {
           $this->add_recid($fh, $holding);
-          //$fh->bibliographicRecordId->_value = $holding->_value->bibliographicRecordId->_value;
-          //$fh->bibliographicRecordAgencyId->_value = $holding->_value->bibliographicRecordAgencyId->_value;
           $fh->responderId->_value = $holding->_value->responderId->_value;
           $hr->responder[]->_value = $fh;
         }
@@ -255,7 +248,6 @@ class openHoldings extends webServiceServer {
     }
     else {
       $obj->bibliographicRecordId->_value = $hold->_value->bibliographicRecordId->_value;
-      $obj->bibliographicRecordAgencyId->_value = $hold->_value->bibliographicRecordAgencyId->_value;
     }
   }
 
@@ -265,7 +257,6 @@ class openHoldings extends webServiceServer {
   *   string pid;
   * - or next 2
   *   string bibliographicRecordId;
-  *   string bibliographicRecordAgencyId;
   *  }
   */
   private function find_holding($holding) {
@@ -283,7 +274,6 @@ class openHoldings extends webServiceServer {
       $z3950->set_step(1);
       if (isset($holding->pid)) {
         list($bibpart, $recid) = explode(':', $holding->pid->_value);
-        //list($holding->bibliographicRecordAgencyId->_value, $source) = explode('-', $bibpart);
         $z3950->set_rpn('@attr 4=103 @attr BIB1 1=12 ' . $recid);
       } else {
         $z3950->set_rpn('@attr 4=103 @attr BIB1 1=12 ' . $holding->bibliographicRecordId->_value);
